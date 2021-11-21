@@ -1,0 +1,6 @@
+**/__pycache__/
+data/detect-targets-in-radar-signals/train/
+data/detect-targets-in-radar-signals/test/
+*.pth
+**/.ipynb_checkpoints/
+
