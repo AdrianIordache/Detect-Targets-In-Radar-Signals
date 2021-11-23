@@ -257,7 +257,7 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     return RD(np.mean(fold_accuracies))
 
 if __name__ == "__main__":
-    QUIET = False
+    QUIET = True
     SAVE_TO_LOG = True
     DISTRIBUTED_TRAINING = False
 
@@ -278,11 +278,11 @@ if __name__ == "__main__":
     CFG = {
         'id': GLOBAL_LOGGER.get_version_id(),
 
-        'model_name': "tf_efficientnet_b0_ns", # 'swin_large_patch4_window12_384_in22k',
+        'model_name': 'swin_large_patch4_window12_384_in22k', # 'beit_large_patch16_224_in22k', # 'swin_large_patch4_window12_384_in22k',
         'dropout': 0.5,
         'size': 384,
-        'batch_size_t': 3,
-        'batch_size_v': 16,
+        'batch_size_t': 5,
+        'batch_size_v': 32,
 
         # Criterion and Gradient Control
         'n_tragets': 5,
@@ -294,7 +294,7 @@ if __name__ == "__main__":
         'optimizer': "AdamW",
         'scheduler': "CosineAnnealingWarmRestarts",
         
-        'LR': 0.0001,
+        'LR': 0.00001,
         'T_0': 200,
         'T_max': 10,
         'T_mult': 2,
@@ -303,14 +303,33 @@ if __name__ == "__main__":
         'no_batches': 'NA',
         'warmup_epochs': 1,
         'cosine_epochs': 9,
-        'epochs' : 1,
+        'epochs' : 10,
         'update_per_batch': True,
 
         'num_workers': 4,
-        'n_folds': 2,
+        'n_folds': 5,
 
         # Augumentations and other obserrvations for experiment
-        'train_transforms': [],
+        'train_transforms': [
+            A.HorizontalFlip(p = 0.5),
+            A.RandomBrightness(limit = 0.05, p = 0.75),
+            A.RandomContrast(limit = 0.05, p = 0.75),
+
+            A.OneOf([
+                A.MotionBlur(blur_limit = 5),
+                A.MedianBlur(blur_limit = 5),
+                A.GaussianBlur(blur_limit = 5),
+                A.GaussNoise(var_limit = (5.0, 30.0)),
+            ], p=0.7),
+
+            A.OneOf([
+		A.OpticalDistortion(distort_limit = 0.01),
+		A.GridDistortion(num_steps = 1, distort_limit = 0.01),
+		A.ElasticTransform(alpha = 1),
+            ], p=0.7),
+
+            A.ShiftScaleRotate(shift_limit = 0.03, scale_limit = 0.03, rotate_limit = 15, border_mode = 0, p = 0.5),
+        ],
         'valid_transforms': [],
         'observations':   None,
 
@@ -327,7 +346,7 @@ if __name__ == "__main__":
         # Parameters for script control
         'print_freq': 50,
         'one_fold': False,
-        'use_apex': False,
+        'use_apex': True,
         'distributed_training': DISTRIBUTED_TRAINING, # python -m torch.distributed.launch --nproc_per_node=1 train.py
         'save_to_log': SAVE_TO_LOG
     }

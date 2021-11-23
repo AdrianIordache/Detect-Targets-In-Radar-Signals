@@ -3,14 +3,14 @@ from models  import *
 from dataset import *
 
 CFG = {
-    'model_name': "tf_efficientnet_b0_ns", # 'swin_large_patch4_window12_384_in22k',
+    'model_name': 'swin_large_patch4_window12_384_in22k',
     'size': 384,
     'batch_size_t': 3,
-    'batch_size_v': 16,
+    'batch_size_v': 48,
 
     'n_tragets': 5,
     'num_workers': 4,
-    'n_folds': 3,
+    'n_folds': 5,
 
     # Augumentations and other obserrvations for experiment
     'train_transforms': [],
@@ -33,10 +33,10 @@ if __name__ == "__main__":
         default = 0, help = "GPU enable for running the procces"
     )
 
-    args = parser.parse_args()
-    GPU  = args.gpu[0]
+    args  = parser.parse_args()
+    RANK  = args.gpu[0]
    
-    DEVICE = torch.device('cuda:{}'.format(GPU) 
+    DEVICE = torch.device('cuda:{}'.format(RANK) 
         if torch.cuda.is_available() else 'cpu'
     )
 
@@ -45,9 +45,9 @@ if __name__ == "__main__":
     tta_transforms = [[]]
 
     STAGE   = 0
-    GPU     = 0 
-    VERSION = 0
-    FOLDS   = [(0, "0.26"), (1, "0.30"), (2, "0.22")]
+    GPU     = 1 
+    VERSION = 1
+    FOLDS   = [(0, "0.75"), (1, "0.74"), (2, "0.75"), (3, "0.74"), (4, "0.75")]
 
     oof = np.zeros((test.shape[0], CFG['n_folds']))
 
@@ -130,6 +130,7 @@ if __name__ == "__main__":
     submission = pd.DataFrame(columns = ['id', 'label'])
     submission['id']    = copy.deepcopy(test["id"])
     submission['label'] = final_predictions
+    submission['label'] = submission['label'].astype(int)
     display(submission)
     toc = time.time()
 
