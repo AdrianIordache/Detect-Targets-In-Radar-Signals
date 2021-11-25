@@ -3,4 +3,6 @@ data/detect-targets-in-radar-signals/train/
 data/detect-targets-in-radar-signals/test/
 *.pth
 **/.ipynb_checkpoints/
-
+data/detect-targets-in-radar-signals/denoising/demo/clear/
+data/detect-targets-in-radar-signals/denoising/demo/noisy/
+data/detect-targets-in-radar-signals/denoising/original/

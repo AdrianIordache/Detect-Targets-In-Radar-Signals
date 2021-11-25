@@ -223,8 +223,8 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
     train["label"] = train["label"].apply(lambda x: x - 1)
 
-    PATH_TO_OOF = f"logs/stage-{STAGE}/gpu-{RANK}/oof.csv"
-    logger.print(f"[GPU {RANK}]: Config File")
+    PATH_TO_OOF = f"logs/stage-{STAGE}/gpu-{GPU}/oof.csv"
+    logger.print(f"[GPU {GPU}]: Config File")
     logger.print(CFG)
     
     train = generate_folds(

@@ -1,0 +1,574 @@
+[GPU 0]: Config File
+{'id': 0, 'model_name': 'tf_efficientnet_b0', 'dropout': 0.5, 'size': 384, 'batch_size_t': 5, 'batch_size_v': 12, 'n_tragets': 1, 'criterion': 'BCEWithLogitsLoss', 'gradient_accumulation_steps': 1, 'max_gradient_norm': None, 'optimizer': 'AdamW', 'scheduler': 'CosineAnnealingWarmRestarts', 'LR': 1e-05, 'T_0': 200, 'T_max': 10, 'T_mult': 2, 'min_lr': 1e-06, 'max_lr': 0.0001, 'no_batches': 'NA', 'warmup_epochs': 1, 'cosine_epochs': 9, 'epochs': 10, 'update_per_batch': True, 'num_workers': 4, 'n_folds': 5, 'train_transforms': [HorizontalFlip(always_apply=False, p=0.5)], 'valid_transforms': [], 'observations': None, 'use_swa': True, 'swa_lr': 0.01, 'swa_epoch': 0, 'use_sam': True, 'use_asam': True, 'asam_rho': 0.1, 'print_freq': 50, 'one_fold': False, 'use_apex': True, 'distributed_training': False, 'save_to_log': True}
+================================================== Training Fold: 0 ==================================================
+[GPU cuda:0][TRAIN] Epoch: [1][0/184], Elapsed 0m 0s (remain 1m 49s), Accuracy: 60.000(60.000), Loss: 0.700(0.700), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [1][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 80.000(78.039), Loss: 0.623(0.655), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [1][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 100.000(83.960), Loss: 0.533(0.615), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [1][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(84.371), Loss: 0.492(0.593), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [1][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 80.000(85.109), Loss: 0.523(0.579), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 7s), Accuracy: 100.000(100.000), Batch Loss: 0.4806, Average Loss: 0.4806
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.4171, Average Loss: 0.4888
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 1 - Train Average Loss: 85.109, Valid Average Loss: 95.417, Epoch Time: 49.668s
+Epoch 1 - Accuracy: 0.952, Precision: 0.957, Recall: 0.952
+Saved Best Model: 0.95
+[GPU cuda:0][TRAIN] Epoch: [2][0/184], Elapsed 0m 0s (remain 1m 7s), Accuracy: 80.000(80.000), Loss: 0.487(0.487), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [2][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(84.314), Loss: 0.453(0.529), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [2][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 100.000(87.921), Loss: 0.350(0.479), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [2][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(87.550), Loss: 0.284(0.457), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [2][183/184], Elapsed 0m 45s (remain 0m 0s), Accuracy: 80.000(87.826), Loss: 0.383(0.439), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.3054, Average Loss: 0.3054
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(94.583), Batch Loss: 0.1994, Average Loss: 0.3044
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 2 - Train Average Loss: 87.826, Valid Average Loss: 94.583, Epoch Time: 48.965s
+Epoch 2 - Accuracy: 0.943, Precision: 0.950, Recall: 0.943
+[GPU cuda:0][TRAIN] Epoch: [3][0/184], Elapsed 0m 0s (remain 1m 6s), Accuracy: 80.000(80.000), Loss: 0.334(0.334), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [3][50/184], Elapsed 0m 12s (remain 0m 31s), Accuracy: 100.000(85.098), Loss: 0.261(0.398), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [3][100/184], Elapsed 0m 24s (remain 0m 19s), Accuracy: 100.000(89.703), Loss: 0.227(0.348), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [3][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(89.272), Loss: 0.205(0.345), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [3][183/184], Elapsed 0m 43s (remain 0m 0s), Accuracy: 80.000(89.457), Loss: 0.361(0.337), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.2590, Average Loss: 0.2590
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.1423, Average Loss: 0.2566
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 3 - Train Average Loss: 89.457, Valid Average Loss: 95.417, Epoch Time: 47.195s
+Epoch 3 - Accuracy: 0.952, Precision: 0.957, Recall: 0.952
+[GPU cuda:0][TRAIN] Epoch: [4][0/184], Elapsed 0m 0s (remain 1m 3s), Accuracy: 80.000(80.000), Loss: 0.287(0.287), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [4][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(85.490), Loss: 0.218(0.363), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][100/184], Elapsed 0m 24s (remain 0m 19s), Accuracy: 100.000(90.099), Loss: 0.180(0.310), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(89.801), Loss: 0.148(0.304), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(90.217), Loss: 0.353(0.293), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.1919, Average Loss: 0.1919
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.833), Batch Loss: 0.0700, Average Loss: 0.1864
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 4 - Train Average Loss: 90.217, Valid Average Loss: 95.833, Epoch Time: 47.202s
+Epoch 4 - Accuracy: 0.957, Precision: 0.958, Recall: 0.957
+Saved Best Model: 0.96
+[GPU cuda:0][TRAIN] Epoch: [5][0/184], Elapsed 0m 0s (remain 1m 5s), Accuracy: 80.000(80.000), Loss: 0.236(0.236), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(87.843), Loss: 0.124(0.300), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][100/184], Elapsed 0m 24s (remain 0m 19s), Accuracy: 100.000(92.673), Loss: 0.129(0.243), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [5][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(92.450), Loss: 0.108(0.237), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [5][183/184], Elapsed 0m 43s (remain 0m 0s), Accuracy: 80.000(92.826), Loss: 0.322(0.228), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.1601, Average Loss: 0.1601
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(97.083), Batch Loss: 0.0407, Average Loss: 0.1498
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 5 - Train Average Loss: 92.826, Valid Average Loss: 97.083, Epoch Time: 47.202s
+Epoch 5 - Accuracy: 0.970, Precision: 0.970, Recall: 0.970
+Saved Best Model: 0.97
+[GPU cuda:0][TRAIN] Epoch: [6][0/184], Elapsed 0m 0s (remain 1m 9s), Accuracy: 80.000(80.000), Loss: 0.200(0.200), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [6][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(91.373), Loss: 0.085(0.250), LR: 0.000006
+[GPU cuda:0][TRAIN] Epoch: [6][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(94.653), Loss: 0.103(0.199), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [6][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(94.570), Loss: 0.089(0.194), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [6][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(95.000), Loss: 0.296(0.188), LR: 0.000004
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.1491, Average Loss: 0.1491
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(97.083), Batch Loss: 0.0309, Average Loss: 0.1349
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 6 - Train Average Loss: 95.000, Valid Average Loss: 97.083, Epoch Time: 47.457s
+Epoch 6 - Accuracy: 0.970, Precision: 0.970, Recall: 0.970
+[GPU cuda:0][TRAIN] Epoch: [7][0/184], Elapsed 0m 0s (remain 1m 9s), Accuracy: 80.000(80.000), Loss: 0.176(0.176), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [7][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(92.941), Loss: 0.069(0.222), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [7][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(95.446), Loss: 0.092(0.175), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(95.232), Loss: 0.081(0.173), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(95.543), Loss: 0.285(0.167), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.1479, Average Loss: 0.1479
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0276, Average Loss: 0.1306
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 7 - Train Average Loss: 95.543, Valid Average Loss: 96.667, Epoch Time: 47.541s
+Epoch 7 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [8][0/184], Elapsed 0m 0s (remain 1m 3s), Accuracy: 100.000(100.000), Loss: 0.161(0.161), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(94.118), Loss: 0.063(0.209), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][100/184], Elapsed 0m 24s (remain 0m 19s), Accuracy: 100.000(96.040), Loss: 0.087(0.165), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(95.762), Loss: 0.074(0.163), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [8][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(95.978), Loss: 0.268(0.157), LR: 0.000010
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.1406, Average Loss: 0.1406
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0210, Average Loss: 0.1210
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 8 - Train Average Loss: 95.978, Valid Average Loss: 96.667, Epoch Time: 47.468s
+Epoch 8 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [9][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 100.000(100.000), Loss: 0.153(0.153), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(94.902), Loss: 0.049(0.193), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][100/184], Elapsed 0m 24s (remain 0m 19s), Accuracy: 100.000(96.436), Loss: 0.067(0.148), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(96.689), Loss: 0.055(0.138), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(96.848), Loss: 0.230(0.131), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.1352, Average Loss: 0.1352
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0143, Average Loss: 0.1083
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 9 - Train Average Loss: 96.848, Valid Average Loss: 96.667, Epoch Time: 47.445s
+Epoch 9 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [10][0/184], Elapsed 0m 0s (remain 1m 4s), Accuracy: 100.000(100.000), Loss: 0.112(0.112), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(96.471), Loss: 0.033(0.154), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][100/184], Elapsed 0m 24s (remain 0m 19s), Accuracy: 100.000(97.822), Loss: 0.048(0.116), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(98.278), Loss: 0.042(0.107), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(98.370), Loss: 0.195(0.101), LR: 0.000008
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.1327, Average Loss: 0.1327
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0104, Average Loss: 0.1021
+Valid Labels Samples: [0 0 0 0 1 1 1 1 0 0]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Epoch 10 - Train Average Loss: 98.370, Valid Average Loss: 96.667, Epoch Time: 47.438s
+Epoch 10 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+================================================== Training Fold: 1 ==================================================
+[GPU cuda:0][TRAIN] Epoch: [1][0/184], Elapsed 0m 0s (remain 1m 5s), Accuracy: 20.000(20.000), Loss: 0.741(0.741), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [1][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 60.000(56.471), Loss: 0.691(0.680), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [1][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 40.000(72.079), Loss: 0.655(0.635), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [1][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 80.000(77.219), Loss: 0.527(0.605), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [1][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(79.348), Loss: 0.526(0.590), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.5153, Average Loss: 0.5153
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(94.167), Batch Loss: 0.3423, Average Loss: 0.4961
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 1 - Train Average Loss: 79.348, Valid Average Loss: 94.167, Epoch Time: 47.533s
+Epoch 1 - Accuracy: 0.939, Precision: 0.945, Recall: 0.939
+Saved Best Model: 0.94
+[GPU cuda:0][TRAIN] Epoch: [2][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 80.000(80.000), Loss: 0.633(0.633), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [2][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 80.000(86.667), Loss: 0.605(0.531), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [2][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 60.000(89.505), Loss: 0.570(0.477), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [2][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(89.272), Loss: 0.337(0.449), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [2][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(89.239), Loss: 0.412(0.433), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.2870, Average Loss: 0.2870
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.000), Batch Loss: 0.1147, Average Loss: 0.2939
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 2 - Train Average Loss: 89.239, Valid Average Loss: 95.000, Epoch Time: 47.513s
+Epoch 2 - Accuracy: 0.948, Precision: 0.950, Recall: 0.948
+Saved Best Model: 0.95
+[GPU cuda:0][TRAIN] Epoch: [3][0/184], Elapsed 0m 0s (remain 1m 9s), Accuracy: 80.000(80.000), Loss: 0.584(0.584), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [3][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 80.000(89.020), Loss: 0.491(0.373), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [3][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 80.000(91.485), Loss: 0.486(0.329), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [3][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(91.391), Loss: 0.252(0.321), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [3][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(91.413), Loss: 0.401(0.319), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.2238, Average Loss: 0.2238
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.000), Batch Loss: 0.0770, Average Loss: 0.2444
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 3 - Train Average Loss: 91.413, Valid Average Loss: 95.000, Epoch Time: 47.577s
+Epoch 3 - Accuracy: 0.948, Precision: 0.950, Recall: 0.948
+[GPU cuda:0][TRAIN] Epoch: [4][0/184], Elapsed 0m 0s (remain 1m 5s), Accuracy: 80.000(80.000), Loss: 0.547(0.547), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [4][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 80.000(89.804), Loss: 0.447(0.331), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][100/184], Elapsed 0m 24s (remain 0m 19s), Accuracy: 80.000(92.079), Loss: 0.425(0.286), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(91.523), Loss: 0.174(0.277), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(91.739), Loss: 0.402(0.273), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.1334, Average Loss: 0.1334
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.0384, Average Loss: 0.1758
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 4 - Train Average Loss: 91.739, Valid Average Loss: 95.417, Epoch Time: 47.467s
+Epoch 4 - Accuracy: 0.952, Precision: 0.952, Recall: 0.952
+Saved Best Model: 0.95
+[GPU cuda:0][TRAIN] Epoch: [5][0/184], Elapsed 0m 0s (remain 1m 7s), Accuracy: 80.000(80.000), Loss: 0.522(0.522), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(92.157), Loss: 0.290(0.259), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(94.059), Loss: 0.304(0.215), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [5][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(93.775), Loss: 0.111(0.207), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [5][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(93.587), Loss: 0.343(0.207), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.0866, Average Loss: 0.0866
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.0246, Average Loss: 0.1423
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 5 - Train Average Loss: 93.587, Valid Average Loss: 95.417, Epoch Time: 47.582s
+Epoch 5 - Accuracy: 0.952, Precision: 0.952, Recall: 0.952
+[GPU cuda:0][TRAIN] Epoch: [6][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 80.000(80.000), Loss: 0.448(0.448), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [6][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(93.725), Loss: 0.209(0.209), LR: 0.000006
+[GPU cuda:0][TRAIN] Epoch: [6][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(95.644), Loss: 0.239(0.171), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [6][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(95.629), Loss: 0.083(0.167), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [6][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(95.217), Loss: 0.300(0.168), LR: 0.000004
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.0661, Average Loss: 0.0661
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.0192, Average Loss: 0.1302
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 6 - Train Average Loss: 95.217, Valid Average Loss: 95.417, Epoch Time: 47.552s
+Epoch 6 - Accuracy: 0.952, Precision: 0.952, Recall: 0.952
+[GPU cuda:0][TRAIN] Epoch: [7][0/184], Elapsed 0m 0s (remain 1m 3s), Accuracy: 80.000(80.000), Loss: 0.389(0.389), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [7][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(94.510), Loss: 0.175(0.181), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [7][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(96.238), Loss: 0.213(0.149), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(96.556), Loss: 0.072(0.146), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(96.087), Loss: 0.281(0.148), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.0588, Average Loss: 0.0588
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.0172, Average Loss: 0.1252
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 7 - Train Average Loss: 96.087, Valid Average Loss: 95.417, Epoch Time: 47.503s
+Epoch 7 - Accuracy: 0.952, Precision: 0.952, Recall: 0.952
+[GPU cuda:0][TRAIN] Epoch: [8][0/184], Elapsed 0m 0s (remain 1m 4s), Accuracy: 80.000(80.000), Loss: 0.351(0.351), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(95.686), Loss: 0.162(0.169), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(97.030), Loss: 0.203(0.139), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(97.086), Loss: 0.065(0.136), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [8][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(96.739), Loss: 0.242(0.138), LR: 0.000010
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 7s), Accuracy: 100.000(100.000), Batch Loss: 0.0489, Average Loss: 0.0489
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.833), Batch Loss: 0.0146, Average Loss: 0.1201
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 8 - Train Average Loss: 96.739, Valid Average Loss: 95.833, Epoch Time: 47.630s
+Epoch 8 - Accuracy: 0.957, Precision: 0.957, Recall: 0.957
+Saved Best Model: 0.96
+[GPU cuda:0][TRAIN] Epoch: [9][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 80.000(80.000), Loss: 0.327(0.327), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(95.686), Loss: 0.124(0.150), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(97.030), Loss: 0.153(0.122), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(97.748), Loss: 0.043(0.114), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 80.000(97.826), Loss: 0.169(0.113), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.0338, Average Loss: 0.0338
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.0099, Average Loss: 0.1124
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 9 - Train Average Loss: 97.826, Valid Average Loss: 95.417, Epoch Time: 47.467s
+Epoch 9 - Accuracy: 0.952, Precision: 0.952, Recall: 0.952
+[GPU cuda:0][TRAIN] Epoch: [10][0/184], Elapsed 0m 0s (remain 1m 7s), Accuracy: 80.000(80.000), Loss: 0.230(0.230), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(96.863), Loss: 0.095(0.112), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(97.822), Loss: 0.115(0.091), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(98.411), Loss: 0.029(0.085), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 100.000(98.587), Loss: 0.123(0.086), LR: 0.000008
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.0257, Average Loss: 0.0257
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.0073, Average Loss: 0.1092
+Valid Labels Samples: [0 0 1 0 0 1 0 0 0 1]
+Valid Predictions Samples: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 10 - Train Average Loss: 98.587, Valid Average Loss: 95.417, Epoch Time: 47.491s
+Epoch 10 - Accuracy: 0.952, Precision: 0.952, Recall: 0.952
+================================================== Training Fold: 2 ==================================================
+[GPU cuda:0][TRAIN] Epoch: [1][0/184], Elapsed 0m 0s (remain 1m 22s), Accuracy: 40.000(40.000), Loss: 0.692(0.692), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [1][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(80.392), Loss: 0.596(0.650), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [1][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 80.000(85.743), Loss: 0.552(0.615), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [1][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 60.000(85.828), Loss: 0.558(0.591), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [1][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 60.000(86.739), Loss: 0.726(0.579), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 83.333(83.333), Batch Loss: 0.5313, Average Loss: 0.5313
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(94.167), Batch Loss: 0.5545, Average Loss: 0.4833
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 1 - Train Average Loss: 86.739, Valid Average Loss: 94.167, Epoch Time: 47.528s
+Epoch 1 - Accuracy: 0.961, Precision: 0.961, Recall: 0.961
+Saved Best Model: 0.96
+[GPU cuda:0][TRAIN] Epoch: [2][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 80.000(80.000), Loss: 0.590(0.590), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [2][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(88.627), Loss: 0.387(0.509), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [2][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 80.000(90.693), Loss: 0.373(0.473), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [2][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(89.934), Loss: 0.385(0.449), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [2][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 60.000(90.109), Loss: 0.683(0.433), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.3587, Average Loss: 0.3587
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(94.583), Batch Loss: 0.4252, Average Loss: 0.2618
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 2 - Train Average Loss: 90.109, Valid Average Loss: 94.583, Epoch Time: 47.545s
+Epoch 2 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+Saved Best Model: 0.97
+[GPU cuda:0][TRAIN] Epoch: [3][0/184], Elapsed 0m 0s (remain 1m 9s), Accuracy: 80.000(80.000), Loss: 0.558(0.558), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [3][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(90.196), Loss: 0.197(0.364), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [3][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 100.000(91.683), Loss: 0.258(0.339), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [3][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(91.126), Loss: 0.314(0.333), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [3][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 60.000(91.304), Loss: 0.656(0.327), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.3194, Average Loss: 0.3194
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(95.417), Batch Loss: 0.4538, Average Loss: 0.2157
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 3 - Train Average Loss: 91.304, Valid Average Loss: 95.417, Epoch Time: 47.540s
+Epoch 3 - Accuracy: 0.974, Precision: 0.974, Recall: 0.974
+Saved Best Model: 0.97
+[GPU cuda:0][TRAIN] Epoch: [4][0/184], Elapsed 0m 0s (remain 1m 10s), Accuracy: 80.000(80.000), Loss: 0.533(0.533), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [4][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(90.588), Loss: 0.165(0.326), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 80.000(91.683), Loss: 0.238(0.299), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(91.126), Loss: 0.262(0.291), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 60.000(91.630), Loss: 0.611(0.281), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 100.000(100.000), Batch Loss: 0.2478, Average Loss: 0.2478
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(95.417), Batch Loss: 0.5073, Average Loss: 0.1473
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 4 - Train Average Loss: 91.630, Valid Average Loss: 95.417, Epoch Time: 47.553s
+Epoch 4 - Accuracy: 0.974, Precision: 0.974, Recall: 0.974
+[GPU cuda:0][TRAIN] Epoch: [5][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 80.000(80.000), Loss: 0.551(0.551), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][50/184], Elapsed 0m 12s (remain 0m 32s), Accuracy: 100.000(91.373), Loss: 0.100(0.258), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][100/184], Elapsed 0m 24s (remain 0m 20s), Accuracy: 80.000(93.267), Loss: 0.213(0.228), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [5][150/184], Elapsed 0m 36s (remain 0m 7s), Accuracy: 100.000(93.245), Loss: 0.197(0.222), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [5][183/184], Elapsed 0m 44s (remain 0m 0s), Accuracy: 60.000(93.587), Loss: 0.490(0.214), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.2182, Average Loss: 0.2182
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(95.417), Batch Loss: 0.5858, Average Loss: 0.1223
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 5 - Train Average Loss: 93.587, Valid Average Loss: 95.417, Epoch Time: 48.019s
+Epoch 5 - Accuracy: 0.974, Precision: 0.974, Recall: 0.974
+[GPU cuda:0][TRAIN] Epoch: [6][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 80.000(80.000), Loss: 0.498(0.498), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [6][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(92.941), Loss: 0.071(0.206), LR: 0.000006
+[GPU cuda:0][TRAIN] Epoch: [6][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(94.455), Loss: 0.187(0.182), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [6][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 100.000(94.570), Loss: 0.160(0.178), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [6][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 80.000(95.000), Loss: 0.410(0.172), LR: 0.000004
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.2123, Average Loss: 0.2123
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(95.000), Batch Loss: 0.6580, Average Loss: 0.1159
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 6 - Train Average Loss: 95.000, Valid Average Loss: 95.000, Epoch Time: 49.651s
+Epoch 6 - Accuracy: 0.970, Precision: 0.970, Recall: 0.970
+[GPU cuda:0][TRAIN] Epoch: [7][0/184], Elapsed 0m 0s (remain 1m 9s), Accuracy: 80.000(80.000), Loss: 0.436(0.436), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [7][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(93.333), Loss: 0.059(0.176), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [7][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(95.050), Loss: 0.167(0.158), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 100.000(95.232), Loss: 0.145(0.155), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 80.000(95.761), Loss: 0.377(0.151), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.2150, Average Loss: 0.2150
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(94.583), Batch Loss: 0.7032, Average Loss: 0.1157
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 7 - Train Average Loss: 95.761, Valid Average Loss: 94.583, Epoch Time: 49.740s
+Epoch 7 - Accuracy: 0.965, Precision: 0.965, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [8][0/184], Elapsed 0m 0s (remain 1m 7s), Accuracy: 80.000(80.000), Loss: 0.392(0.392), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(94.118), Loss: 0.054(0.162), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 100.000(95.644), Loss: 0.158(0.147), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(95.629), Loss: 0.122(0.145), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [8][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 100.000(96.304), Loss: 0.314(0.139), LR: 0.000010
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.1873, Average Loss: 0.1873
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(95.417), Batch Loss: 0.6638, Average Loss: 0.1051
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 8 - Train Average Loss: 96.304, Valid Average Loss: 95.417, Epoch Time: 49.659s
+Epoch 8 - Accuracy: 0.974, Precision: 0.974, Recall: 0.974
+[GPU cuda:0][TRAIN] Epoch: [9][0/184], Elapsed 0m 0s (remain 1m 10s), Accuracy: 80.000(80.000), Loss: 0.405(0.405), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(95.294), Loss: 0.045(0.143), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(96.238), Loss: 0.159(0.128), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 100.000(96.689), Loss: 0.090(0.119), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 100.000(97.283), Loss: 0.230(0.112), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.1760, Average Loss: 0.1760
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(95.417), Batch Loss: 0.6855, Average Loss: 0.0994
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 9 - Train Average Loss: 97.283, Valid Average Loss: 95.417, Epoch Time: 49.702s
+Epoch 9 - Accuracy: 0.974, Precision: 0.974, Recall: 0.974
+[GPU cuda:0][TRAIN] Epoch: [10][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 80.000(80.000), Loss: 0.289(0.289), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(96.471), Loss: 0.030(0.104), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 100.000(97.228), Loss: 0.119(0.093), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(98.013), Loss: 0.068(0.087), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 100.000(98.370), Loss: 0.179(0.082), LR: 0.000008
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 100.000(100.000), Batch Loss: 0.1694, Average Loss: 0.1694
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(95.000), Batch Loss: 0.7281, Average Loss: 0.0977
+Valid Labels Samples: [1 0 0 1 1 0 0 0 0 1]
+Valid Predictions Samples: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+Epoch 10 - Train Average Loss: 98.370, Valid Average Loss: 95.000, Epoch Time: 49.690s
+Epoch 10 - Accuracy: 0.970, Precision: 0.970, Recall: 0.970
+================================================== Training Fold: 3 ==================================================
+[GPU cuda:0][TRAIN] Epoch: [1][0/184], Elapsed 0m 0s (remain 1m 20s), Accuracy: 20.000(20.000), Loss: 0.714(0.714), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [1][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 80.000(67.843), Loss: 0.597(0.660), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [1][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(78.416), Loss: 0.570(0.616), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [1][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 80.000(80.662), Loss: 0.577(0.591), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [1][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(81.630), Loss: 0.742(0.581), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 83.333(83.333), Batch Loss: 0.5296, Average Loss: 0.5296
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(94.583), Batch Loss: 0.3993, Average Loss: 0.4788
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 1 - Train Average Loss: 81.630, Valid Average Loss: 94.583, Epoch Time: 49.694s
+Epoch 1 - Accuracy: 0.943, Precision: 0.948, Recall: 0.943
+Saved Best Model: 0.94
+[GPU cuda:0][TRAIN] Epoch: [2][0/184], Elapsed 0m 0s (remain 1m 14s), Accuracy: 80.000(80.000), Loss: 0.476(0.476), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [2][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(88.235), Loss: 0.418(0.504), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [2][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(90.297), Loss: 0.450(0.458), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [2][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 80.000(88.477), Loss: 0.432(0.439), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [2][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(88.478), Loss: 0.898(0.429), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 83.333(83.333), Batch Loss: 0.3324, Average Loss: 0.3324
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.1571, Average Loss: 0.2668
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 2 - Train Average Loss: 88.478, Valid Average Loss: 95.417, Epoch Time: 49.550s
+Epoch 2 - Accuracy: 0.952, Precision: 0.957, Recall: 0.952
+Saved Best Model: 0.95
+[GPU cuda:0][TRAIN] Epoch: [3][0/184], Elapsed 0m 0s (remain 1m 14s), Accuracy: 80.000(80.000), Loss: 0.323(0.323), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [3][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(89.020), Loss: 0.249(0.349), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [3][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(91.485), Loss: 0.393(0.318), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [3][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 80.000(90.331), Loss: 0.361(0.320), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [3][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(90.109), Loss: 0.984(0.322), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 83.333(83.333), Batch Loss: 0.2815, Average Loss: 0.2815
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.000), Batch Loss: 0.1140, Average Loss: 0.2187
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 3 - Train Average Loss: 90.109, Valid Average Loss: 95.000, Epoch Time: 49.538s
+Epoch 3 - Accuracy: 0.948, Precision: 0.950, Recall: 0.948
+[GPU cuda:0][TRAIN] Epoch: [4][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 80.000(80.000), Loss: 0.271(0.271), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [4][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(89.804), Loss: 0.207(0.309), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(91.881), Loss: 0.409(0.279), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 80.000(91.126), Loss: 0.302(0.280), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(90.978), Loss: 1.194(0.279), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 91.667(91.667), Batch Loss: 0.2058, Average Loss: 0.2058
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0668, Average Loss: 0.1521
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 4 - Train Average Loss: 90.978, Valid Average Loss: 96.667, Epoch Time: 49.496s
+Epoch 4 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+Saved Best Model: 0.97
+[GPU cuda:0][TRAIN] Epoch: [5][0/184], Elapsed 0m 0s (remain 1m 7s), Accuracy: 80.000(80.000), Loss: 0.209(0.209), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(92.157), Loss: 0.116(0.239), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(93.663), Loss: 0.420(0.209), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [5][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(93.245), Loss: 0.213(0.212), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [5][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(93.152), Loss: 1.363(0.215), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1706, Average Loss: 0.1706
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0475, Average Loss: 0.1214
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 5 - Train Average Loss: 93.152, Valid Average Loss: 96.667, Epoch Time: 49.448s
+Epoch 5 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [6][0/184], Elapsed 0m 0s (remain 1m 11s), Accuracy: 100.000(100.000), Loss: 0.146(0.146), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [6][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(93.725), Loss: 0.077(0.186), LR: 0.000006
+[GPU cuda:0][TRAIN] Epoch: [6][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(95.050), Loss: 0.402(0.164), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [6][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(94.967), Loss: 0.169(0.170), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [6][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(94.891), Loss: 1.436(0.175), LR: 0.000004
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1582, Average Loss: 0.1582
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0403, Average Loss: 0.1095
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 6 - Train Average Loss: 94.891, Valid Average Loss: 96.667, Epoch Time: 49.559s
+Epoch 6 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [7][0/184], Elapsed 0m 0s (remain 1m 8s), Accuracy: 100.000(100.000), Loss: 0.106(0.106), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [7][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(95.686), Loss: 0.061(0.158), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [7][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(96.436), Loss: 0.375(0.141), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(96.291), Loss: 0.149(0.149), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(96.087), Loss: 1.457(0.156), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1532, Average Loss: 0.1532
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0372, Average Loss: 0.1049
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 7 - Train Average Loss: 96.087, Valid Average Loss: 96.667, Epoch Time: 49.525s
+Epoch 7 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [8][0/184], Elapsed 0m 0s (remain 1m 6s), Accuracy: 100.000(100.000), Loss: 0.089(0.089), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(96.078), Loss: 0.055(0.146), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(96.832), Loss: 0.366(0.132), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(96.689), Loss: 0.128(0.140), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [8][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 60.000(96.522), Loss: 1.551(0.146), LR: 0.000010
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 91.667(91.667), Batch Loss: 0.1443, Average Loss: 0.1443
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0324, Average Loss: 0.0991
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 8 - Train Average Loss: 96.522, Valid Average Loss: 96.667, Epoch Time: 49.504s
+Epoch 8 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [9][0/184], Elapsed 0m 0s (remain 1m 7s), Accuracy: 100.000(100.000), Loss: 0.076(0.076), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(95.686), Loss: 0.042(0.130), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(96.634), Loss: 0.393(0.114), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(96.821), Loss: 0.093(0.116), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 60.000(96.739), Loss: 1.607(0.121), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1340, Average Loss: 0.1340
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0259, Average Loss: 0.0906
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 9 - Train Average Loss: 96.739, Valid Average Loss: 96.667, Epoch Time: 49.570s
+Epoch 9 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+[GPU cuda:0][TRAIN] Epoch: [10][0/184], Elapsed 0m 0s (remain 1m 9s), Accuracy: 100.000(100.000), Loss: 0.045(0.045), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(98.039), Loss: 0.029(0.097), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(98.218), Loss: 0.336(0.085), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(98.146), Loss: 0.070(0.088), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 60.000(98.152), Loss: 1.597(0.094), LR: 0.000008
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 91.667(91.667), Batch Loss: 0.1280, Average Loss: 0.1280
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.667), Batch Loss: 0.0221, Average Loss: 0.0867
+Valid Labels Samples: [0 0 0 0 1 0 0 1 0 1]
+Valid Predictions Samples: [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0]
+Epoch 10 - Train Average Loss: 98.152, Valid Average Loss: 96.667, Epoch Time: 49.591s
+Epoch 10 - Accuracy: 0.965, Precision: 0.966, Recall: 0.965
+================================================== Training Fold: 4 ==================================================
+[GPU cuda:0][TRAIN] Epoch: [1][0/184], Elapsed 0m 0s (remain 1m 17s), Accuracy: 80.000(80.000), Loss: 0.664(0.664), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [1][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 80.000(80.392), Loss: 0.618(0.640), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [1][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 100.000(86.535), Loss: 0.545(0.604), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [1][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 40.000(86.887), Loss: 0.707(0.579), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [1][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 20.000(87.935), Loss: 0.822(0.567), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 91.667(91.667), Batch Loss: 0.4604, Average Loss: 0.4604
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 50.000(92.083), Batch Loss: 0.5115, Average Loss: 0.4708
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 1 - Train Average Loss: 87.935, Valid Average Loss: 92.083, Epoch Time: 49.703s
+Epoch 1 - Accuracy: 0.939, Precision: 0.939, Recall: 0.939
+Saved Best Model: 0.94
+[GPU cuda:0][TRAIN] Epoch: [2][0/184], Elapsed 0m 0s (remain 1m 11s), Accuracy: 100.000(100.000), Loss: 0.448(0.448), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [2][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(89.412), Loss: 0.467(0.499), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [2][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(90.891), Loss: 0.408(0.460), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [2][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 60.000(90.596), Loss: 0.691(0.435), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [2][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(91.087), Loss: 1.042(0.421), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.2762, Average Loss: 0.2762
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.417), Batch Loss: 0.3550, Average Loss: 0.2796
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 2 - Train Average Loss: 91.087, Valid Average Loss: 95.417, Epoch Time: 49.710s
+Epoch 2 - Accuracy: 0.952, Precision: 0.952, Recall: 0.952
+Saved Best Model: 0.95
+[GPU cuda:0][TRAIN] Epoch: [3][0/184], Elapsed 0m 0s (remain 1m 11s), Accuracy: 100.000(100.000), Loss: 0.257(0.257), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [3][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(89.804), Loss: 0.325(0.351), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [3][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(91.485), Loss: 0.320(0.321), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [3][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 60.000(91.391), Loss: 0.673(0.314), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [3][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(91.848), Loss: 1.148(0.311), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 91.667(91.667), Batch Loss: 0.2393, Average Loss: 0.2393
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.833), Batch Loss: 0.3421, Average Loss: 0.2352
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 3 - Train Average Loss: 91.848, Valid Average Loss: 95.833, Epoch Time: 49.653s
+Epoch 3 - Accuracy: 0.957, Precision: 0.956, Recall: 0.957
+Saved Best Model: 0.96
+[GPU cuda:0][TRAIN] Epoch: [4][0/184], Elapsed 0m 0s (remain 1m 7s), Accuracy: 100.000(100.000), Loss: 0.192(0.192), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [4][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(90.588), Loss: 0.286(0.313), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(92.475), Loss: 0.269(0.280), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 60.000(92.450), Loss: 0.666(0.272), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [4][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(92.717), Loss: 1.393(0.266), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1824, Average Loss: 0.1824
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(95.833), Batch Loss: 0.3051, Average Loss: 0.1670
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 4 - Train Average Loss: 92.717, Valid Average Loss: 95.833, Epoch Time: 49.658s
+Epoch 4 - Accuracy: 0.957, Precision: 0.956, Recall: 0.957
+[GPU cuda:0][TRAIN] Epoch: [5][0/184], Elapsed 0m 0s (remain 1m 10s), Accuracy: 100.000(100.000), Loss: 0.113(0.113), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(92.941), Loss: 0.231(0.248), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [5][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(94.455), Loss: 0.234(0.211), LR: 0.000008
+[GPU cuda:0][TRAIN] Epoch: [5][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 60.000(94.437), Loss: 0.534(0.204), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [5][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(94.565), Loss: 1.583(0.203), LR: 0.000007
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1605, Average Loss: 0.1605
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.250), Batch Loss: 0.2936, Average Loss: 0.1375
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 5 - Train Average Loss: 94.565, Valid Average Loss: 96.250, Epoch Time: 49.708s
+Epoch 5 - Accuracy: 0.961, Precision: 0.961, Recall: 0.961
+Saved Best Model: 0.96
+[GPU cuda:0][TRAIN] Epoch: [6][0/184], Elapsed 0m 0s (remain 1m 7s), Accuracy: 100.000(100.000), Loss: 0.073(0.073), LR: 0.000007
+[GPU cuda:0][TRAIN] Epoch: [6][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(93.725), Loss: 0.213(0.200), LR: 0.000006
+[GPU cuda:0][TRAIN] Epoch: [6][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(95.446), Loss: 0.223(0.169), LR: 0.000005
+[GPU cuda:0][TRAIN] Epoch: [6][150/184], Elapsed 0m 38s (remain 0m 8s), Accuracy: 60.000(95.497), Loss: 0.429(0.164), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [6][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(95.543), Loss: 1.651(0.166), LR: 0.000004
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1500, Average Loss: 0.1500
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.250), Batch Loss: 0.3077, Average Loss: 0.1291
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 6 - Train Average Loss: 95.543, Valid Average Loss: 96.250, Epoch Time: 49.727s
+Epoch 6 - Accuracy: 0.961, Precision: 0.961, Recall: 0.961
+[GPU cuda:0][TRAIN] Epoch: [7][0/184], Elapsed 0m 0s (remain 1m 14s), Accuracy: 100.000(100.000), Loss: 0.058(0.058), LR: 0.000004
+[GPU cuda:0][TRAIN] Epoch: [7][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(94.902), Loss: 0.197(0.173), LR: 0.000003
+[GPU cuda:0][TRAIN] Epoch: [7][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(96.238), Loss: 0.216(0.147), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 60.000(96.159), Loss: 0.378(0.144), LR: 0.000002
+[GPU cuda:0][TRAIN] Epoch: [7][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(96.087), Loss: 1.664(0.147), LR: 0.000001
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 91.667(91.667), Batch Loss: 0.1468, Average Loss: 0.1468
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.250), Batch Loss: 0.3094, Average Loss: 0.1259
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 7 - Train Average Loss: 96.087, Valid Average Loss: 96.250, Epoch Time: 49.513s
+Epoch 7 - Accuracy: 0.961, Precision: 0.961, Recall: 0.961
+[GPU cuda:0][TRAIN] Epoch: [8][0/184], Elapsed 0m 0s (remain 1m 12s), Accuracy: 100.000(100.000), Loss: 0.052(0.052), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(96.078), Loss: 0.187(0.161), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(96.832), Loss: 0.209(0.138), LR: 0.000001
+[GPU cuda:0][TRAIN] Epoch: [8][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(96.954), Loss: 0.318(0.134), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [8][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(96.739), Loss: 1.760(0.138), LR: 0.000010
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1423, Average Loss: 0.1423
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.250), Batch Loss: 0.2826, Average Loss: 0.1145
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 8 - Train Average Loss: 96.739, Valid Average Loss: 96.250, Epoch Time: 49.592s
+Epoch 8 - Accuracy: 0.961, Precision: 0.961, Recall: 0.961
+[GPU cuda:0][TRAIN] Epoch: [9][0/184], Elapsed 0m 0s (remain 1m 6s), Accuracy: 100.000(100.000), Loss: 0.041(0.041), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(96.471), Loss: 0.192(0.147), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 80.000(97.228), Loss: 0.188(0.121), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(97.748), Loss: 0.239(0.113), LR: 0.000010
+[GPU cuda:0][TRAIN] Epoch: [9][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(97.500), Loss: 1.782(0.117), LR: 0.000009
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 5s), Accuracy: 91.667(91.667), Batch Loss: 0.1378, Average Loss: 0.1378
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.250), Batch Loss: 0.2782, Average Loss: 0.1055
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 9 - Train Average Loss: 97.500, Valid Average Loss: 96.250, Epoch Time: 49.461s
+Epoch 9 - Accuracy: 0.961, Precision: 0.961, Recall: 0.961
+[GPU cuda:0][TRAIN] Epoch: [10][0/184], Elapsed 0m 0s (remain 1m 14s), Accuracy: 100.000(100.000), Loss: 0.029(0.029), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][50/184], Elapsed 0m 12s (remain 0m 33s), Accuracy: 100.000(97.255), Loss: 0.159(0.113), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][100/184], Elapsed 0m 25s (remain 0m 20s), Accuracy: 100.000(98.218), Loss: 0.141(0.091), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][150/184], Elapsed 0m 37s (remain 0m 8s), Accuracy: 100.000(98.675), Loss: 0.187(0.086), LR: 0.000009
+[GPU cuda:0][TRAIN] Epoch: [10][183/184], Elapsed 0m 46s (remain 0m 0s), Accuracy: 40.000(98.261), Loss: 1.718(0.091), LR: 0.000008
+[GPU cuda:0][VALID][0/20], Elapsed 0m 0s (remain 0m 6s), Accuracy: 91.667(91.667), Batch Loss: 0.1368, Average Loss: 0.1368
+[GPU cuda:0][VALID][19/20], Elapsed 0m 2s (remain 0m 0s), Accuracy: 100.000(96.250), Batch Loss: 0.2718, Average Loss: 0.0998
+Valid Labels Samples: [0 0 0 1 1 0 0 0 0 0]
+Valid Predictions Samples: [0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Epoch 10 - Train Average Loss: 98.261, Valid Average Loss: 96.250, Epoch Time: 49.575s
+Epoch 10 - Accuracy: 0.961, Precision: 0.961, Recall: 0.961

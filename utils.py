@@ -83,10 +83,14 @@ PATH_TO_MODELS = 'models/stage-{}/'.format(STAGE)
 
 PATH_TO_TRAIN_IMAGES = os.path.join(PATH_TO_DATA, "train/")
 PATH_TO_TRAIN_META   = os.path.join(PATH_TO_DATA, "train.csv") 
+PATH_TO_TRAIN_FE     = os.path.join(PATH_TO_DATA, "train_fe.csv")
+
 PATH_TO_TEST_IMAGES  = os.path.join(PATH_TO_DATA, "test/")
 PATH_TO_TEST_META    = os.path.join(PATH_TO_DATA, "test.csv")
-PATH_TO_SUBMISSION   = os.path.join(PATH_TO_DATA, "sample_submission.csv")
+PATH_TO_TEST_FE      = os.path.join(PATH_TO_DATA, "test_fe.csv")
 
+PATH_TO_SUBMISSION   = os.path.join(PATH_TO_DATA, "sample_submission.csv")
+PATH_TO_DENOISING    = os.path.join(PATH_TO_DATA, 'denoising', 'demo', 'denoising.csv')
 
 def asMinutes(s):
     m = math.floor(s / 60)
@@ -272,3 +276,77 @@ def free_gpu_memory(device, object = None, verbose = False):
     gc.collect()
     with torch.cuda.device(device):
         torch.cuda.empty_cache()
+
+def create_denoising_dataset(path_to_clear, path_to_noisy, path_to_output):
+    ids, labels, paths = [], [], []
+    for path in [path_to_clear, path_to_noisy]:
+        for image_path in sorted(glob.glob(path + '/*.png')):
+            idx   = image_path.split('/')[-1]
+            label = 1 if "noisy" in path else 0
+
+            ids.append(idx)
+            labels.append(label)
+            paths.append(image_path)
+          
+    dataset = pd.DataFrame({
+        'id': ids,
+        'label': labels,
+        'path': paths    
+    }).sample(
+        frac = 1, 
+        random_state = SEED
+    )
+
+    dataset.to_csv(os.path.join(path_to_output, 'denoising.csv'), index = False)
+    
+def rebuild_oof(PATH_TO_MODELS):
+    GPUS   = [0, 1]
+    MODELS = [0, 1, 2]
+    FOLDS  = [0, 1, 2, 3, 4]
+
+    counter = 0
+    all_ids, all_labels, all_predictions = [], [], []
+    for gpu in GPUS:
+        for model in MODELS:
+            path = os.path.join(PATH_TO_MODELS, f'gpu-{gpu}', f'model_{model}')
+            name = f"Stage-0-GPU-{gpu}-Model-{model}"
+            ids, labels, predictions = [], [], []
+            for fold in FOLDS:
+                for file in sorted(glob.glob(path + '/*.pth')):
+                    if f"fold_{fold}" in file:
+                        print("Current Model: {}".format(file))
+                        states = torch.load(file, map_location = torch.device('cpu'))
+                        
+                        ids.extend(states['oof_ids'])
+                        labels.extend(states['oof_labels'])
+                        predictions.extend(states['oof_proba'])
+
+            counter += 1
+            if len(predictions) != 15500: 
+                print(f"Predictions found: {len(predictions)}, skipped model: {name}")
+                continue
+
+            all_ids.append(ids)
+            all_labels.append(labels)
+            all_predictions.append((name, predictions))
+
+    results = {
+        "id": all_ids[0],
+        "label": all_labels[0],
+    }
+
+    data = pd.DataFrame(results)
+
+    for column, predictions in all_predictions:
+        data[column] = predictions
+
+    display(data)
+    data.to_csv('oof_rebuild.csv', index = False)
+
+
+if __name__ == "__main__":
+    create_denoising_dataset(
+        'data/detect-targets-in-radar-signals/denoising/demo/clear/',
+        'data/detect-targets-in-radar-signals/denoising/demo/noisy/',
+        'data/detect-targets-in-radar-signals/denoising/demo/'
+    )
