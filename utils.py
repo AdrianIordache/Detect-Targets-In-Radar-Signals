@@ -32,6 +32,7 @@ from warmup_scheduler import GradualWarmupScheduler
 from torch.optim.lr_scheduler import CosineAnnealingLR, CosineAnnealingWarmRestarts, OneCycleLR
 from torch.distributed import Backend
 
+from torchvision import datasets, transforms
 from albumentations.pytorch import ToTensorV2
 import albumentations as A
 import timm
@@ -76,7 +77,7 @@ OUTPUT = {
 SEED = 42
 seed_everything(SEED)
 
-STAGE = 0
+STAGE = 1
 PATH_TO_DATA   = 'data/detect-targets-in-radar-signals/'
 PATH_TO_OOF    = 'logs/stage-{}/gpu-{}/oof.csv'.format(STAGE, RANK)
 PATH_TO_MODELS = 'models/stage-{}/'.format(STAGE)

@@ -160,7 +160,7 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
 
     model = RadarSignalsModel(
        model_name      = CFG['model_name'],
-       n_targets       = CFG['n_tragets'],
+       n_targets       = CFG['n_targets'],
        pretrained      = True,
     )
 
@@ -175,7 +175,8 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
     else:
         scaler = None
 
-    best_score = -np.inf
+    best_model = None
+    best_score  = -np.inf
     best_predictions = None
     for epoch in range(CFG['epochs']):
         start_epoch = time.time()
@@ -202,21 +203,18 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
             best_predictions = valid_predictions
             oof[valid_idx] = best_predictions
 
-            if CFG['save_to_log']:
-                torch.save({
-
+            best_model = {
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'scheduler': scheduler.state_dict(),
                 'oof_proba':  best_predictions,
                 'oof_labels': valid_labels,
                 'oof_ids': valid_ids
-
-            }, os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{best_score:.2f}.pth"))
+            }
 
         if train_avg_accuracy - valid_avg_accuracy > 10: break
 
-    return oof, best_score
+    return oof, best_score, best_model
 
 def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     seed_everything(SEED)
@@ -240,9 +238,11 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
 
     oof   = np.zeros((train.shape[0],), dtype = np.float32)
 
+    best_models = []
     fold_accuracies = []
     for fold in range(CFG['n_folds']): 
-        oof, fold_accuracy = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE)
+        oof, fold_accuracy, best_model = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE)
+        best_models.append((fold_accuracy, copy.deepcopy(best_model)))
         fold_accuracies.append(fold_accuracy)
         if CFG['one_fold']: break
 
@@ -258,7 +258,7 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     OUTPUT["cross-validation"] = fold_accuracies
     GLOBAL_LOGGER.append(CFG, OUTPUT)
 
-    return RD(np.mean(fold_accuracies))
+    return RD(np.mean(fold_accuracies)), best_models
 
 if __name__ == "__main__":
     QUIET = True
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     GPU  = args.gpu[0]
 
     GLOBAL_LOGGER = GlobalLogger(
-        path_to_global_logger = f'logs/stage-{STAGE}/gpu-{GPU}/logger_gpu_{GPU}.csv', 
+        path_to_global_logger = f"logger_gpu_{GPU}.csv", # f'logs/stage-{STAGE}/gpu-{GPU}/logger_gpu_{GPU}.csv', 
         save_to_log = SAVE_TO_LOG
     )
 
@@ -289,7 +289,7 @@ if __name__ == "__main__":
         'batch_size_v': 32,
 
         # Criterion and Gradient Control
-        'n_tragets': 5,
+        'n_targets': 5,
         'criterion': "CrossEntropyLoss",
         'gradient_accumulation_steps': 1,
         'max_gradient_norm': None,
@@ -306,7 +306,7 @@ if __name__ == "__main__":
         'max_lr': 1e-4,
         'no_batches': 'NA',
         'warmup_epochs': 1,
-        'cosine_epochs': 9,
+        'cosine_epochs': 19,
         'epochs' : 20,
         'update_per_batch': True,
 
@@ -348,5 +348,12 @@ if __name__ == "__main__":
     else:
         logger = Logger(distributed = QUIET)
 
-    accuracy = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+    accuracy, best_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+    if CFG['save_to_log']:
+        for fold, (accuracy, model) in enumerate(best_models): 
+            torch.save(
+                model, 
+                os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
+            )
+            
     print(f"Accuracy: {accuracy}")

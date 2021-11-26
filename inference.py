@@ -2,65 +2,34 @@ from utils   import *
 from models  import *
 from dataset import *
 
-CFG = {
-    'model_name': 'swin_large_patch4_window12_384_in22k',
-    'size': 384,
-    'batch_size_t': 3,
-    'batch_size_v': 48,
+def inference(MODELS, CFG, GPU, VERBOSE = False):
+    test = pd.read_csv(PATH_TO_TEST_META)
+    test['path'] = test['id'].apply(lambda x: os.path.join(PATH_TO_TEST_IMAGES, x))
+    
+    if len(CFG['train_transforms']) != 0:
+        tta_transforms = [
+            [],
+            [A.HorizontalFlip(p = 1)], 
+            [A.VerticalFlip(p = 1)],
+            [A.RandomRotate90(p = 0.5)]
+        ]
+    else: 
+        tta_transforms = [[]]
 
-    'n_tragets': 5,
-    'num_workers': 4,
-    'n_folds': 5,
-
-    # Augumentations and other obserrvations for experiment
-    'train_transforms': [],
-    'valid_transforms': [],
-    'observations':   None,
-
-    # Stochastic Weight Averaging
-    'use_swa': True,
-
-    # Parameters for script control
-    'print_freq': 50,
-    'one_fold': False,
-    'use_apex': False,
-}
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--gpu', 
-        dest = 'gpu', nargs = '+', type = int, 
-        default = 0, help = "GPU enable for running the procces"
-    )
-
-    args  = parser.parse_args()
-    RANK  = args.gpu[0]
-   
-    DEVICE = torch.device('cuda:{}'.format(RANK) 
+    DEVICE = torch.device('cuda:{}'.format(GPU) 
         if torch.cuda.is_available() else 'cpu'
     )
 
-    test = pd.read_csv(PATH_TO_TEST_META)
-    test['path'] = test['id'].apply(lambda x: os.path.join(PATH_TO_TEST_IMAGES, x))
-    tta_transforms = [[]]
-
-    STAGE   = 0
-    GPU     = 1
-    VERSION = 3
-    FOLDS   = [(0, "0.78"), (1, "0.78"), (2, "0.77"), (3, "0.78"), (4, "0.79")]
-
-    oof = np.zeros((test.shape[0], CFG['n_folds']))
+    VERSION = CFG['id']
+    oof = np.zeros((test.shape[0], len(tta_transforms), len(MODELS)))
 
     tic = time.time()
-    for i_fold, (fold, loss) in enumerate(FOLDS):
-        PATH_TO_MODEL = f"models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{loss}.pth"
-        print("Current Model Inference: ", PATH_TO_MODEL)
-
-        states = torch.load(PATH_TO_MODEL, map_location = torch.device('cpu'))
+    for i_fold, (accuracy, states) in enumerate(MODELS):
+        if VERBOSE: print("Current Model Inference: Fold", i_fold)
 
         model = RadarSignalsModel(
            model_name      = CFG['model_name'],
-           n_targets       = CFG['n_tragets'],
+           n_targets       = CFG['n_targets'],
            pretrained      = False,
         ).to(DEVICE)
         
@@ -69,7 +38,7 @@ if __name__ == "__main__":
 
         tta_predictions = np.zeros((test.shape[0], len(tta_transforms)))
         for tta_index, tta in enumerate(tta_transforms):
-            print(f"Current TTA {tta_index + 1}/{len(tta_transforms)}")
+            if VERBOSE: print(f"Current TTA {tta_index + 1}/{len(tta_transforms)}")
             
             test_transforms = A.Compose(
                 tta + [
@@ -77,7 +46,6 @@ if __name__ == "__main__":
                 A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
                 ToTensorV2()
             ])
-
 
             testset = RadarSignalsDataset(
                     test, 
@@ -107,20 +75,27 @@ if __name__ == "__main__":
                 predictions.extend(preds)
 
                 end = time.time()
-                if batch % CFG['print_freq'] == 0 or batch == (len(testloader) - 1):
-                    print('[GPU {0}][INFERENCE][{1}/{2}], Elapsed {remain:s}'
-                          .format(DEVICE, batch, len(testloader), remain = timeSince(start, float(batch + 1) / len(testloader))))
+                if VERBOSE:
+                    if batch % CFG['print_freq'] == 0 or batch == (len(testloader) - 1):
+                        print('[GPU {0}][INFERENCE][{1}/{2}], Elapsed {remain:s}'
+                              .format(DEVICE, batch, len(testloader), remain = timeSince(start, float(batch + 1) / len(testloader))))
             
             tta_predictions[:, tta_index] = predictions    
             del testset, testloader, predictions, preds
             gc.collect()
         
-        oof[:, i_fold] = np.mean(tta_predictions, axis = 1)
+        oof[:, :, i_fold] = tta_predictions
         free_gpu_memory(DEVICE)
         
         del states, tta_predictions
         gc.collect()
-        
+    
+    oof = oof.reshape((test.shape[0], -1))
+
+    votes = pd.DataFrame(oof.astype(int), columns = [f"vote_{vote}" for vote in range(oof.shape[1])])
+    votes['id'] = copy.deepcopy(test['id'])
+    votes.to_csv(f'models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/votes_stage_{STAGE}_gpu_{GPU}_version_{VERSION}.csv', index = False)
+
     final_predictions = []
     for i in range(oof.shape[0]):
         values, counts = np.unique(oof[i], return_counts = True)
@@ -131,8 +106,57 @@ if __name__ == "__main__":
     submission['id']    = copy.deepcopy(test["id"])
     submission['label'] = final_predictions
     submission['label'] = submission['label'].astype(int)
-    display(submission)
+    if VERBOSE: display(submission)
     toc = time.time()
 
-    submission.to_csv(f'models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/submission_{VERSION}.csv', index = False)
-    print("Inference Time: {}'s".format(toc - tic))
+    submission.to_csv(f'models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/submission_stage_{STAGE}_gpu_{GPU}_version_{VERSION}.csv', index = False)
+    if VERBOSE: print("Inference Time: {}'s".format(toc - tic))
+
+
+if __name__ == "__main__":
+    STAGE   = 0
+    GPU     = 0
+    VERSION = 0
+    FOLDS   = [(0, "0.26"), (1, "0.30"), (2, "0.22")]
+
+    CFG = {
+        'id': VERSION,
+        'model_name': "tf_efficientnet_b0_ns", # 'swin_large_patch4_window12_384_in22k',
+        'size': 50,
+        'batch_size_t': 3,
+        'batch_size_v': 144,
+
+        'n_targets': 5,
+        'num_workers': 4,
+        'n_folds': 3,
+
+        # Augumentations and other obserrvations for experiment
+        'train_transforms': [],
+        'valid_transforms': [],
+        'observations':   None,
+
+        # Stochastic Weight Averaging
+        'use_swa': True,
+
+        # Parameters for script control
+        'print_freq': 50,
+        'one_fold': False,
+        'use_apex': False,
+    }
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--gpu', 
+        dest = 'gpu', nargs = '+', type = int, 
+        default = 0, help = "GPU enable for running the procces"
+    )
+
+    args  = parser.parse_args()
+    RANK  = args.gpu[0]
+    
+    MODELS = []
+    for fold_idx, (fold, accuracy) in enumerate(FOLDS):
+        PATH_TO_MODEL = f"models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy}.pth"
+        states = torch.load(PATH_TO_MODEL, map_location = torch.device('cpu'))
+        MODELS.append((accuracy, copy.deepcopy(states)))
+
+    inference(MODELS, CFG, GPU, VERBOSE = True)
