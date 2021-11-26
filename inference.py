@@ -45,14 +45,14 @@ if __name__ == "__main__":
     tta_transforms = [[]]
 
     STAGE   = 0
-    GPU     = 1 
-    VERSION = 1
-    FOLDS   = [(0, "0.75"), (1, "0.74"), (2, "0.75"), (3, "0.74"), (4, "0.75")]
+    GPU     = 1
+    VERSION = 3
+    FOLDS   = [(0, "0.78"), (1, "0.78"), (2, "0.77"), (3, "0.78"), (4, "0.79")]
 
     oof = np.zeros((test.shape[0], CFG['n_folds']))
 
     tic = time.time()
-    for fold, loss in FOLDS:
+    for i_fold, (fold, loss) in enumerate(FOLDS):
         PATH_TO_MODEL = f"models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{loss}.pth"
         print("Current Model Inference: ", PATH_TO_MODEL)
 
@@ -115,7 +115,7 @@ if __name__ == "__main__":
             del testset, testloader, predictions, preds
             gc.collect()
         
-        oof[:, fold] = np.mean(tta_predictions, axis = 1)
+        oof[:, i_fold] = np.mean(tta_predictions, axis = 1)
         free_gpu_memory(DEVICE)
         
         del states, tta_predictions

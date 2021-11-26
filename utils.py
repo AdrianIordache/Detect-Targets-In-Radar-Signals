@@ -92,6 +92,8 @@ PATH_TO_TEST_FE      = os.path.join(PATH_TO_DATA, "test_fe.csv")
 PATH_TO_SUBMISSION   = os.path.join(PATH_TO_DATA, "sample_submission.csv")
 PATH_TO_DENOISING    = os.path.join(PATH_TO_DATA, 'denoising', 'demo', 'denoising.csv')
 
+PATH_TO_ERROR_ANALYSIS = os.path.join(PATH_TO_DATA, "error_analysis.csv")
+
 def asMinutes(s):
     m = math.floor(s / 60)
     s -= m * 60

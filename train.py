@@ -202,7 +202,8 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
             best_predictions = valid_predictions
             oof[valid_idx] = best_predictions
 
-            torch.save({
+            if CFG['save_to_log']:
+                torch.save({
 
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
@@ -213,6 +214,8 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
 
             }, os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{best_score:.2f}.pth"))
 
+        if train_avg_accuracy - valid_avg_accuracy > 10: break
+
     return oof, best_score
 
 def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
@@ -222,6 +225,7 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     train  = pd.read_csv(PATH_TO_TRAIN_META)
     train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
     train["label"] = train["label"].apply(lambda x: x - 1)
+    #train = train[train['very_wrong'] == 0].reset_index(drop = True)
 
     PATH_TO_OOF = f"logs/stage-{STAGE}/gpu-{GPU}/oof.csv"
     logger.print(f"[GPU {GPU}]: Config File")
@@ -281,7 +285,7 @@ if __name__ == "__main__":
         'model_name': 'swin_large_patch4_window12_384_in22k', # 'beit_large_patch16_224_in22k', # 'swin_large_patch4_window12_384_in22k',
         'dropout': 0.5,
         'size': 384,
-        'batch_size_t': 5,
+        'batch_size_t': 4,
         'batch_size_v': 32,
 
         # Criterion and Gradient Control
@@ -291,7 +295,7 @@ if __name__ == "__main__":
         'max_gradient_norm': None,
 
         # Parameters for optimizers, schedulers and learning_rate
-        'optimizer': "AdamW",
+        'optimizer': "RangerLars",
         'scheduler': "CosineAnnealingWarmRestarts",
         
         'LR': 0.00001,
@@ -303,7 +307,7 @@ if __name__ == "__main__":
         'no_batches': 'NA',
         'warmup_epochs': 1,
         'cosine_epochs': 9,
-        'epochs' : 10,
+        'epochs' : 20,
         'update_per_batch': True,
 
         'num_workers': 4,
@@ -311,27 +315,13 @@ if __name__ == "__main__":
 
         # Augumentations and other obserrvations for experiment
         'train_transforms': [
-            A.HorizontalFlip(p = 0.5),
-            A.RandomBrightness(limit = 0.05, p = 0.75),
-            A.RandomContrast(limit = 0.05, p = 0.75),
-
-            A.OneOf([
-                A.MotionBlur(blur_limit = 5),
-                A.MedianBlur(blur_limit = 5),
-                A.GaussianBlur(blur_limit = 5),
-                A.GaussNoise(var_limit = (5.0, 30.0)),
-            ], p=0.7),
-
-            A.OneOf([
-		A.OpticalDistortion(distort_limit = 0.01),
-		A.GridDistortion(num_steps = 1, distort_limit = 0.01),
-		A.ElasticTransform(alpha = 1),
-            ], p=0.7),
-
-            A.ShiftScaleRotate(shift_limit = 0.03, scale_limit = 0.03, rotate_limit = 15, border_mode = 0, p = 0.5),
+        #    A.HorizontalFlip(p = 0.5),
+        #    A.VerticalFlip(p = 0.5),
+        #    A.Transpose(p = 0.5),
+        #    A.RandomRotate90(p = 0.5),
         ],
         'valid_transforms': [],
-        'observations':   None,
+        'observations': None, # "Removing 'very_hard' Samples",
 
         # Stochastic Weight Averaging
         'use_swa': True,
