@@ -65,8 +65,8 @@ if __name__ == "__main__":
                             'max_lr': 1e-4,
                             'no_batches': 'NA',
                             'warmup_epochs': 1,
-                            'cosine_epochs': 19,
-                            'epochs' : 5,
+                            'cosine_epochs': 14,
+                            'epochs' : 15,
                             'update_per_batch': True,
 
                             'num_workers': 4,
@@ -138,5 +138,7 @@ if __name__ == "__main__":
 
                         print(f'[GPU-{GPU}] Experiment {counter}/{no_experiments} -> Accuracy: {accuracy}')
                         logger.close()
-
+                        
+                        del best_models
+                        gc.collect()
                         free_gpu_memory(device = torch.device(f'cuda:{GPU}'))

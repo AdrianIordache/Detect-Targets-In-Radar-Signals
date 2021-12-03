@@ -3,7 +3,7 @@ import albumentations as A
 configs = {
 	"GPU-0":{
 		"model_config": [('swin_large_patch4_window12_384_in22k', 384)],
-		"optimizers": [('RangerLars', (5, 32), 3100)],
+		"optimizers": [('RangerLars', (4, 8), 3100)],
 		"lrs": [7e-6, 1e-5, 3e-5, 5e-5, 7e-5, 1e-4, 3e-4],
 		"schedulers": [
 			{
@@ -21,7 +21,7 @@ configs = {
 			{
 				'scheduler_name': 'OneCycleLR',
 				'no_batches': 3100,
-				'epochs': 20,
+				'epochs': 15,
 				'max_lr': 1e-3
 			},
 		],
@@ -36,7 +36,7 @@ configs = {
 	},
 	"GPU-1":{
 		"model_config": [('swin_large_patch4_window12_384_in22k', 384)],
-		"optimizers": [('AdamW', (5, 32), 2480)],
+		"optimizers": [('AdamW', (5, 8), 2480)],
 		"lrs": [7e-6, 1e-5, 3e-5, 5e-5, 7e-5, 1e-4, 3e-4],
 		"schedulers": [
 			{
@@ -54,7 +54,7 @@ configs = {
 			{
 				'scheduler_name': 'OneCycleLR',
 				'no_batches': 2480,
-				'epochs': 20,
+				'epochs': 15,
 				'max_lr': 1e-3
 			},
 		],
