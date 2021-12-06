@@ -115,9 +115,9 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
 
 if __name__ == "__main__":
     STAGE   = 1
-    GPU     = 0
+    GPU     = 1
     VERSION = 43
-    FOLDS   = [(0, "0.77"), (1, "0.75"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
+    FOLDS   = [(0, "0.77"), (1, "0.76"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
 
     CFG = {
         'id': VERSION,
