@@ -78,9 +78,10 @@ SEED = 42
 seed_everything(SEED)
 
 STAGE = 1
-PATH_TO_DATA   = 'data/detect-targets-in-radar-signals/'
-PATH_TO_OOF    = 'logs/stage-{}/gpu-{}/oof.csv'.format(STAGE, RANK)
-PATH_TO_MODELS = 'models/stage-{}/'.format(STAGE)
+PATH_TO_DATA       = 'data/detect-targets-in-radar-signals/'
+PATH_TO_OOF        = 'logs/stage-{}/gpu-{}/oof.csv'.format(STAGE, RANK)
+PATH_TO_MODELS     = 'models/stage-{}/'.format(STAGE)
+PATH_TO_EMBEDDINGS = 'embeddings/'
 
 PATH_TO_TRAIN_IMAGES = os.path.join(PATH_TO_DATA, "train/")
 PATH_TO_TRAIN_META   = os.path.join(PATH_TO_DATA, "train.csv") 

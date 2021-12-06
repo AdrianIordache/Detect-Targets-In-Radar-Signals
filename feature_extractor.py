@@ -26,6 +26,79 @@ CFG = {
     'use_apex': False,
 }
 
+def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536):
+    STAGE   = 1
+    GPU     = 0 
+    VERSION = 0
+    FOLDS   = [(0, "0.97"), (1, "0.96"), (2, "0.97"), (3, "0.97"), (4, "0.96")]
+
+    tic = time.time()
+    for fold, accuracy in FOLDS:
+        embeddings = np.zeros((dataset.shape[0], embedding_size))
+        PATH_TO_MODEL = f"models/gpu-{GPU}/model_{VERSION}/model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy}.pth"
+        print("Current Model Inference: ", PATH_TO_MODEL)
+
+        states = torch.load(PATH_TO_MODEL, map_location = torch.device('cpu'))
+
+        model = RadarSignalsModel(
+           model_name      = CFG['model_name'],
+           n_targets       = CFG['n_tragets'],
+           pretrained      = False,
+        ).to(DEVICE)
+
+        model.load_state_dict(states['model'])       
+        model.eval() 
+
+        test_transforms = A.Compose([
+            A.Resize(CFG['size'], CFG['size']),
+            A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+            ToTensorV2()
+        ])
+
+        testset = RadarSignalsDataset(
+                dataset, 
+                train         = False, 
+                transform     = test_transforms, 
+        )
+
+        testloader = DataLoader(
+                testset, 
+                batch_size     = CFG['batch_size_v'], 
+                shuffle        = False, 
+                num_workers    = CFG['num_workers'], 
+                worker_init_fn = seed_worker, 
+                pin_memory     = True,
+                drop_last      = False
+        )
+
+        predictions = []
+        start = end = time.time()
+        for batch, (images) in enumerate(testloader):
+            images = images.to(DEVICE)
+
+            with torch.no_grad():
+                preds = model(images, embeddings = True).squeeze(1)
+                
+            preds = preds.cpu().numpy()
+            predictions.extend(preds)
+
+            end = time.time()
+            if batch % CFG['print_freq'] == 0 or batch == (len(testloader) - 1):
+                print('[GPU {0}][INFERENCE][{1}/{2}], Elapsed {remain:s}'
+                      .format(DEVICE, batch, len(testloader), remain = timeSince(start, float(batch + 1) / len(testloader))))
+
+        images = images.detach().cpu()
+        embeddings[:, :] = predictions
+
+        embeddings_csv = pd.DataFrame(embeddings, columns = ['X_{}'.format(x) for x in range(embedding_size)])
+        embeddings_csv["id"]   = dataset['id'].values
+        embeddings_csv["fold"] = dataset['fold'].values
+
+        embeddings_csv.to_csv(
+            os.path.join(PATH_TO_EMBEDDINGS, f'stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
+                index = False
+        )
+
 def extract_noisy_feature(dataset: pd.DataFrame):
     oof = np.zeros((dataset.shape[0], CFG['n_folds']))
 
@@ -128,12 +201,16 @@ if __name__ == "__main__":
         if torch.cuda.is_available() else 'cpu'
     )
 
-    train = pd.read_csv(PATH_TO_TRAIN_META)
-    train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
-    train = extract_noisy_feature(train)
-    train.to_csv(PATH_TO_TRAIN_FE, index = False)
+    if 0:
+        train = pd.read_csv(PATH_TO_TRAIN_META)
+        train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
+        train = extract_noisy_feature(train)
+        train.to_csv(PATH_TO_TRAIN_FE, index = False)
 
-    test  = pd.read_csv(PATH_TO_TEST_META)
-    test["path"] = test["id"].apply(lambda x: os.path.join(PATH_TO_TEST_IMAGES, x))
-    test  = extract_noisy_feature(test)
-    test.to_csv(PATH_TO_TEST_FE, index = False)
+        test  = pd.read_csv(PATH_TO_TEST_META)
+        test["path"] = test["id"].apply(lambda x: os.path.join(PATH_TO_TEST_IMAGES, x))
+        test  = extract_noisy_feature(test)
+        test.to_csv(PATH_TO_TEST_FE, index = False)
+
+    if 1:
+        pass
