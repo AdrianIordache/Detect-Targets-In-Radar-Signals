@@ -204,15 +204,13 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
             oof[valid_idx] = best_predictions
 
             best_model = {
-                'model': model.state_dict(),
-                'optimizer': optimizer.state_dict(),
-                'scheduler': scheduler.state_dict(),
+                'model':     {key: value.cpu() for key, value in model.state_dict().items()},
                 'oof_proba':  best_predictions,
                 'oof_labels': valid_labels,
-                'oof_ids': valid_ids
+                'oof_ids':    valid_ids
             }
 
-        if train_avg_accuracy - valid_avg_accuracy > 10: break
+        if train_avg_accuracy - valid_avg_accuracy > 20: break
 
     return oof, best_score, best_model
 
@@ -223,7 +221,8 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     train  = pd.read_csv(PATH_TO_TRAIN_META)
     train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
     train["label"] = train["label"].apply(lambda x: x - 1)
-    #train = train[train['very_wrong'] == 0].reset_index(drop = True)
+    # train = train[train['all_wrong'] == 1].reset_index(drop = True)
+    # train = train.sample(100, random_state = SEED).reset_index(drop = True)
 
     PATH_TO_OOF = f"logs/stage-{STAGE}/gpu-{GPU}/oof.csv"
     logger.print(f"[GPU {GPU}]: Config File")
@@ -240,16 +239,16 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
 
     best_models = []
     fold_accuracies = []
-    for fold in range(CFG['n_folds']): 
+    for fold in range(CFG['n_folds']):
         oof, fold_accuracy, best_model = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE)
         best_models.append((fold_accuracy, copy.deepcopy(best_model)))
         fold_accuracies.append(fold_accuracy)
         if CFG['one_fold']: break
 
-    if CFG['one_fold'] == False:
-        predictions = pd.read_csv(PATH_TO_OOF)
-        predictions['model_{}'.format(CFG['id'])] = oof + 1
-        predictions.to_csv(PATH_TO_OOF, index = False)
+    #if CFG['one_fold'] == False:
+    #    predictions = pd.read_csv(PATH_TO_OOF)
+    #    predictions['model_{}'.format(CFG['id'])] = oof + 1
+    #    predictions.to_csv(PATH_TO_OOF, index = False)
 
     OUTPUT["oof-accuracy"]  = accuracy_score(train['label'].values, oof)
     OUTPUT["oof-precision"] = precision_score(train['label'].values, oof, average = 'weighted')
@@ -261,8 +260,8 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     return RD(np.mean(fold_accuracies)), best_models
 
 if __name__ == "__main__":
-    QUIET = True
-    SAVE_TO_LOG = True
+    QUIET = False
+    SAVE_TO_LOG = False
     DISTRIBUTED_TRAINING = False
 
     parser = argparse.ArgumentParser()
@@ -275,7 +274,7 @@ if __name__ == "__main__":
     GPU  = args.gpu[0]
 
     GLOBAL_LOGGER = GlobalLogger(
-        path_to_global_logger = f"logger_gpu_{GPU}.csv", # f'logs/stage-{STAGE}/gpu-{GPU}/logger_gpu_{GPU}.csv', 
+        path_to_global_logger = f'logs/stage-{STAGE}/gpu-{GPU}/logger_gpu_{GPU}.csv',
         save_to_log = SAVE_TO_LOG
     )
 
@@ -285,7 +284,7 @@ if __name__ == "__main__":
         'model_name': 'swin_large_patch4_window12_384_in22k', # 'beit_large_patch16_224_in22k', # 'swin_large_patch4_window12_384_in22k',
         'dropout': 0.5,
         'size': 384,
-        'batch_size_t': 4,
+        'batch_size_t': 5,
         'batch_size_v': 32,
 
         # Criterion and Gradient Control
@@ -295,10 +294,10 @@ if __name__ == "__main__":
         'max_gradient_norm': None,
 
         # Parameters for optimizers, schedulers and learning_rate
-        'optimizer': "RangerLars",
+        'optimizer': "AdamW",
         'scheduler': "CosineAnnealingWarmRestarts",
         
-        'LR': 0.00001,
+        'LR': 7e-05,
         'T_0': 200,
         'T_max': 10,
         'T_mult': 2,
@@ -314,12 +313,7 @@ if __name__ == "__main__":
         'n_folds': 5,
 
         # Augumentations and other obserrvations for experiment
-        'train_transforms': [
-        #    A.HorizontalFlip(p = 0.5),
-        #    A.VerticalFlip(p = 0.5),
-        #    A.Transpose(p = 0.5),
-        #    A.RandomRotate90(p = 0.5),
-        ],
+        'train_transforms': [],
         'valid_transforms': [],
         'observations': None, # "Removing 'very_hard' Samples",
 

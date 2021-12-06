@@ -2,7 +2,7 @@ from utils   import *
 from models  import *
 from dataset import *
 
-def inference(MODELS, CFG, GPU, VERBOSE = False):
+def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
     test = pd.read_csv(PATH_TO_TEST_META)
     test['path'] = test['id'].apply(lambda x: os.path.join(PATH_TO_TEST_IMAGES, x))
     
@@ -16,7 +16,7 @@ def inference(MODELS, CFG, GPU, VERBOSE = False):
     else: 
         tta_transforms = [[]]
 
-    DEVICE = torch.device('cuda:{}'.format(GPU) 
+    DEVICE = torch.device('cuda:{}'.format(RANK) 
         if torch.cuda.is_available() else 'cpu'
     )
 
@@ -114,17 +114,17 @@ def inference(MODELS, CFG, GPU, VERBOSE = False):
 
 
 if __name__ == "__main__":
-    STAGE   = 0
+    STAGE   = 1
     GPU     = 0
-    VERSION = 0
-    FOLDS   = [(0, "0.26"), (1, "0.30"), (2, "0.22")]
+    VERSION = 43
+    FOLDS   = [(0, "0.77"), (1, "0.75"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
 
     CFG = {
         'id': VERSION,
-        'model_name': "tf_efficientnet_b0_ns", # 'swin_large_patch4_window12_384_in22k',
-        'size': 50,
+        'model_name': 'swin_large_patch4_window12_384_in22k',
+        'size': 384,
         'batch_size_t': 3,
-        'batch_size_v': 144,
+        'batch_size_v': 48,
 
         'n_targets': 5,
         'num_workers': 4,
@@ -159,4 +159,4 @@ if __name__ == "__main__":
         states = torch.load(PATH_TO_MODEL, map_location = torch.device('cpu'))
         MODELS.append((accuracy, copy.deepcopy(states)))
 
-    inference(MODELS, CFG, GPU, VERBOSE = True)
+    inference(MODELS, CFG, RANK, GPU, VERBOSE = True)

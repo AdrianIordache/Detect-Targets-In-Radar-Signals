@@ -258,7 +258,7 @@ def get_criterion(config_file):
     if config_file['criterion'] == "BCEWithLogitsLoss":
         return nn.BCEWithLogitsLoss()
     if config_file['criterion'] == "CrossEntropyLoss":
-        return nn.CrossEntropyLoss()
+        return nn.CrossEntropyLoss(weight = torch.tensor([0.8, 1.0, 1.0, 1.0, 1.0]).to(torch.device("cuda:0")))
 
     return None
 

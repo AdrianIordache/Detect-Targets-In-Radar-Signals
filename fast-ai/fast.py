@@ -1,5 +1,8 @@
 import sys
 sys.path.append("..")
+#import os
+#os.environ['CUDA_VISIBLE_DEVICES']='1'
+#os.environ['CUDA_LAUNCH_BLOCKING']='0'
 
 from utils import *
 from fastai.vision.all import *
@@ -76,15 +79,15 @@ if __name__ == "__main__":
     
     CFG = {
         'id': 0,
-        'model_name': 'efficientnet_b0',
+        'model_name': 'swin_large_patch4_window12_384_in22k',
         'size': 384,
-        'batch_size_t': 3,
+        'batch_size_t': 5,
         'batch_size_v': 3,
 
         'epochs':  20,
         'n_folds': 5,
         'n_tta':   5,
-        'debug':   True
+        'debug':   False
     }
 
     seed_everything(SEED = SEED, reproducible = True)
@@ -107,7 +110,9 @@ if __name__ == "__main__":
     oof_probas, oof_labels = [], [] 
     votes = np.zeros((len(test_df), CFG['n_folds']))
     for fold in range(CFG['n_folds']):
-        minimum_lr, steep_lr, valley_lr, slide_lr = get_learner(train_df, FOLD = fold, CFG = CFG).lr_find(end_lr = 5e-2, suggest_funcs = (minimum, steep, valley, slide), num_it = 200)
+        minimum_lr, steep_lr, valley_lr, slide_lr = get_learner(train_df, FOLD = fold, CFG = CFG).lr_find(end_lr = 5e-2, suggest_funcs = (minimum, steep, valley, slide), num_it = 300)
+        torch.cuda.empty_cache()
+        gc.collect()
 
         print(f'Fold {fold} results')
         
@@ -138,21 +143,21 @@ if __name__ == "__main__":
         torch.cuda.empty_cache()
         gc.collect()
 
-final_predictions = []
-for i in range(votes.shape[0]):
-    values, counts = np.unique(votes[i], return_counts = True)
-    index = np.argmax(counts)
-    final_predictions.append(values[index])
+    final_predictions = []
+    for i in range(votes.shape[0]):
+        values, counts = np.unique(votes[i], return_counts = True)
+        index = np.argmax(counts)
+        final_predictions.append(values[index])
 
-submission = pd.DataFrame(columns = ['id', 'label'])
-submission['id']    = test_df['id']
-submission['label'] = final_predictions
-submission['label'] = submission['label'].astype(int)
-submission.to_csv(f"submissions/fastai_{CFG['model_name']}_submission_{CFG['id']}.csv", index = False)
+    submission = pd.DataFrame(columns = ['id', 'label'])
+    submission['id']    = test_df['id']
+    submission['label'] = final_predictions
+    submission['label'] = submission['label'].astype(int)
+    submission.to_csv(f"submissions/fastai_{CFG['model_name']}_submission_{CFG['id']}.csv", index = False)
 
-results = {
-    'probas': oof_probas,
-    'labels': oof_labels
-}
+    results = {
+        'probas': oof_probas,
+        'labels': oof_labels
+    }
 
-pd.DataFrame(results).to_csv('external_results.csv', index = False)
+    pd.DataFrame(results).to_csv('external_results.csv', index = False)
