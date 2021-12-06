@@ -28,8 +28,8 @@ CFG = {
 
 def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536):
     STAGE   = 1
-    GPU     = 0 
-    VERSION = 0
+    GPU     = 1 
+    VERSION = 42
     FOLDS   = [(0, "0.97"), (1, "0.96"), (2, "0.97"), (3, "0.97"), (4, "0.96")]
 
     tic = time.time()
@@ -92,7 +92,6 @@ def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536):
 
         embeddings_csv = pd.DataFrame(embeddings, columns = ['X_{}'.format(x) for x in range(embedding_size)])
         embeddings_csv["id"]   = dataset['id'].values
-        embeddings_csv["fold"] = dataset['fold'].values
 
         embeddings_csv.to_csv(
             os.path.join(PATH_TO_EMBEDDINGS, f'stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
@@ -213,4 +212,10 @@ if __name__ == "__main__":
         test.to_csv(PATH_TO_TEST_FE, index = False)
 
     if 1:
-        pass
+        train = pd.read_csv(PATH_TO_TRAIN_META)
+        train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
+        extract_embeddings(train)
+
+        test = pd.read_csv(PATH_TO_TEST_META)
+        test["path"]  = test["id"].apply(lambda x: os.path.join(PATH_TO_TEST_IMAGES, x))
+        extract_embeddings(test)
