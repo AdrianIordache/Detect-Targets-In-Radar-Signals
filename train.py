@@ -10,6 +10,17 @@ def train_epoch(model, loader, optimizer, criterion, scheduler, epoch, device, s
     start = end = time.time()
 
     for batch, (images, labels) in enumerate(loader):
+        def closure():
+            if CFG['use_apex']:
+                with autocast():
+                    loss = criterion(model(images).squeeze(1), labels.long())
+                scaler.scale(loss).backward()
+            else:
+                loss = criterion(model(images).squeeze(1), labels.long())
+                loss.backward()
+
+            return loss
+
         images = images.to(device)
         labels = labels.to(device)
 
@@ -41,10 +52,16 @@ def train_epoch(model, loader, optimizer, criterion, scheduler, epoch, device, s
 
         if (batch + 1) % CFG['gradient_accumulation_steps'] == 0:
             if CFG['use_apex']:
-                scaler.step(optimizer)
+                if CFG['use_sam']:
+                    scaler.step(optimizer, closure)
+                else:
+                    scaler.step(optimizer)
                 scaler.update()
             else:
-                optimizer.step()
+                if CFG['use_sam']:
+                    optimizer.step(closure)
+                else:
+                    optimizer.step()
 
             if CFG['update_per_batch']: scheduler.step()
 
@@ -165,6 +182,13 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
     )
 
     model.to(DEVICE)
+
+    if CFG['use_sam']: 
+        base_optimizer = AdamW
+        optimizer      = SAM(model.parameters(), base_optimizer, \
+                         lr = CFG['LR'], adaptive = CFG['use_asam'], rho = CFG['asam_rho'])
+    else:
+        optimizer      = get_optimizer(model.parameters(), CFG)
 
     optimizer = get_optimizer(model.parameters(), CFG)
     scheduler = get_scheduler(optimizer, CFG)
