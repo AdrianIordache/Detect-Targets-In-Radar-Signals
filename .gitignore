@@ -6,3 +6,4 @@ data/detect-targets-in-radar-signals/test/
 data/detect-targets-in-radar-signals/denoising/demo/clear/
 data/detect-targets-in-radar-signals/denoising/demo/noisy/
 data/detect-targets-in-radar-signals/denoising/original/
+embeddings/models/

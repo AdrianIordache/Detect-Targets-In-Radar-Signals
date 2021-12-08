@@ -3,12 +3,12 @@ from models  import *
 from dataset import *
 
 CFG = {
-    'model_name': 'tf_efficientnet_b0',
+    'model_name': 'swin_large_patch4_window12_384_in22k',
     'size': 384,
     'batch_size_t': 3,
-    'batch_size_v': 14,
+    'batch_size_v': 56,
 
-    'n_tragets': 1,
+    'n_tragets': 5,
     'num_workers': 4,
     'n_folds': 5,
 
@@ -26,16 +26,16 @@ CFG = {
     'use_apex': False,
 }
 
-def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536):
+def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: str = 'train'):
     STAGE   = 1
     GPU     = 1 
     VERSION = 42
-    FOLDS   = [(0, "0.97"), (1, "0.96"), (2, "0.97"), (3, "0.97"), (4, "0.96")]
+    FOLDS   = [(0, "0.77"), (1, "0.76"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
 
     tic = time.time()
     for fold, accuracy in FOLDS:
         embeddings = np.zeros((dataset.shape[0], embedding_size))
-        PATH_TO_MODEL = f"models/gpu-{GPU}/model_{VERSION}/model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy}.pth"
+        PATH_TO_MODEL = f"models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy}.pth"
         print("Current Model Inference: ", PATH_TO_MODEL)
 
         states = torch.load(PATH_TO_MODEL, map_location = torch.device('cpu'))
@@ -94,7 +94,7 @@ def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536):
         embeddings_csv["id"]   = dataset['id'].values
 
         embeddings_csv.to_csv(
-            os.path.join(PATH_TO_EMBEDDINGS, f'stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
+            os.path.join(PATH_TO_EMBEDDINGS, f'{typs}_stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
                 index = False
         )
 
@@ -214,8 +214,8 @@ if __name__ == "__main__":
     if 1:
         train = pd.read_csv(PATH_TO_TRAIN_META)
         train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
-        extract_embeddings(train)
+        extract_embeddings(train, typs = 'train')
 
         test = pd.read_csv(PATH_TO_TEST_META)
         test["path"]  = test["id"].apply(lambda x: os.path.join(PATH_TO_TEST_IMAGES, x))
-        extract_embeddings(test)
+        extract_embeddings(test, typs = 'test')
