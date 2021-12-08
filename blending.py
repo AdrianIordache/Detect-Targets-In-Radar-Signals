@@ -4,22 +4,34 @@ import matplotlib.pyplot as plt
 
 from IPython.display import display
 
-# (0, 0, 0)  -> 0.80000
-# (1, 1, 42) -> 0.80072
-# (1, 0, 43) -> 0.79636
-# (0, 0, 0) + (1, 1, 42) -> 0.80872
-# (0, 0, 0) + (1, 1, 42) + (1, 0, 43) -> 0.80072
-# (1, 1, 43) -> 0.80000
-# (0, 0, 0) + (1, 1, 42) + (1, 1, 43) -> 0.80581
+# (0, 0, 0, 'N')  -> 0.80000
+# (1, 1, 42, 'N') -> 0.80072
+# (0, 0, 0, 'N') + (1, 1, 42, 'N') -> 0.80872
 
-STAGES_GPUS_VERSIONS = [(0, 0, 0), (1, 1, 42), (1, 1, 43)]
+# (1, 0, 43, 'N') -> 0.79636
+# (0, 0, 0, 'N') + (1, 1, 42, 'N') + (1, 0, 43, 'N') -> 0.80072
+
+# (1, 1, 43, 'N') -> 0.80000
+# (0, 0, 0, 'N') + (1, 1, 42, 'N') + (1, 1, 43, 'N') -> 0.80581
+
+# (1, '1+1', '42+43', 'S') -> 0.80363
+# (1, 1, 42, 'S') + (1, 1, 43, 'S') + (1, '1+1', '42+43', 'S') -> 0.80509
+
+# (1, 1, 42, 'N') + (1, 1, 43, 'N') + (1, 1, 42, 'S') + (1, 1, 43, 'S') + (1, '1+1', '42+43', 'S') -> 0.80218
+# (0, 0, 0, 'N')  + (1, 1, 42, 'N') + (1, '1+1', '42+43', 'S') -> 0.80872
+
+STAGES_GPUS_VERSIONS = [(0, 0, 0, 'N'), (1, 1, 42, 'N'), (1, '1+1', '42+43', 'S')]
 
 general_votes = pd.DataFrame()
 general_preds = pd.DataFrame()
 
-for model, (stage, gpu, version) in enumerate(STAGES_GPUS_VERSIONS):
-    path_to_submission = f'ensambles/original-subs/submission_stage_{stage}_gpu_{gpu}_version_{version}.csv'
-    path_to_votes      = f'ensambles/votes/votes_stage_{stage}_gpu_{gpu}_version_{version}.csv'
+for model, (stage, gpu, version, types) in enumerate(STAGES_GPUS_VERSIONS):
+    if types == 'N':
+        path_to_submission = f'ensambles/original-subs/submission_stage_{stage}_gpu_{gpu}_version_{version}.csv'
+        path_to_votes      = f'ensambles/votes/votes_stage_{stage}_gpu_{gpu}_version_{version}.csv'
+    elif types == 'S':
+        path_to_submission = f'embeddings/submissions/submission_svm_stage_{stage}_gpu_{gpu}_version_{version}.csv'
+        path_to_votes      = f'embeddings/votes/votes_svm_stage_{stage}_gpu_{gpu}_version_{version}.csv'
 
     submission = pd.read_csv(path_to_submission)
     votes      = pd.read_csv(path_to_votes)
@@ -91,5 +103,5 @@ if 0:
     submission['label'] = final_predictions
     submission['label'] = submission['label'].astype(int)
 
-    submission.to_csv("ensambles/ensamble_voting_2.csv", index = False)
+    submission.to_csv("ensambles/ensamble_voting_5.csv", index = False)
     display(submission)
