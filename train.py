@@ -4,23 +4,15 @@ from dataset import *
 
 def train_epoch(model, loader, optimizer, criterion, scheduler, epoch, device, scaler, CFG, logger):
     model.train()
+    losses_plot = []
+    scores_plot = []
+
     losses      = AverageMeter()
     accuracies  = AverageMeter()
 
     start = end = time.time()
 
     for batch, (images, labels) in enumerate(loader):
-        def closure():
-            if CFG['use_apex']:
-                with autocast():
-                    loss = criterion(model(images).squeeze(1), labels.long())
-                scaler.scale(loss).backward()
-            else:
-                loss = criterion(model(images).squeeze(1), labels.long())
-                loss.backward()
-
-            return loss
-
         images = images.to(device)
         labels = labels.to(device)
 
@@ -52,16 +44,10 @@ def train_epoch(model, loader, optimizer, criterion, scheduler, epoch, device, s
 
         if (batch + 1) % CFG['gradient_accumulation_steps'] == 0:
             if CFG['use_apex']:
-                if CFG['use_sam']:
-                    scaler.step(optimizer, closure)
-                else:
-                    scaler.step(optimizer)
+                scaler.step(optimizer)
                 scaler.update()
             else:
-                if CFG['use_sam']:
-                    optimizer.step(closure)
-                else:
-                    optimizer.step()
+                optimizer.step()
 
             if CFG['update_per_batch']: scheduler.step()
 
@@ -74,12 +60,18 @@ def train_epoch(model, loader, optimizer, criterion, scheduler, epoch, device, s
                   .format(device, epoch + 1, batch, len(loader), remain = timeSince(start, float(batch + 1) / len(loader)), accuracy = accuracies,
                           loss = losses, lr = scheduler.get_lr()[0]))
 
+        losses_plot.append(losses.val)
+        scores_plot.append(accuracies.val)
+
     free_gpu_memory(device)
-    return accuracies.avg
+    return accuracies.avg, np.mean(losses_plot), np.mean(scores_plot)
 
 
 def valid_epoch(model, loader, criterion, device, CFG, logger):
     model.eval()
+    losses_plot = []
+    scores_plot = []
+
     predictions = []
     losses      = AverageMeter()
     accuracies  = AverageMeter()
@@ -110,8 +102,11 @@ def valid_epoch(model, loader, criterion, device, CFG, logger):
             logger.print('[GPU {0}][VALID][{1}/{2}], Elapsed {remain:s}, Accuracy: {accuracy.val:.3f}({accuracy.avg:.3f}), Batch Loss: {loss.val:.4f}, Average Loss: {loss.avg:.4f}'
                   .format(device, batch, len(loader), remain = timeSince(start, float(batch + 1) / len(loader)), accuracy = accuracies, loss = losses))
 
+        losses_plot.append(losses.val)
+        scores_plot.append(accuracies.val)
+
     free_gpu_memory(device)
-    return accuracies.avg, predictions
+    return accuracies.avg, predictions, np.mean(losses_plot), np.mean(scores_plot)
 
 def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, PATH_TO_MODELS: str, DEVICE,  swa_oof: np.array = None):
     logger.print(50 * "=" + " Training Fold: {} ".format(fold) + 50 * "=")
@@ -183,13 +178,6 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
 
     model.to(DEVICE)
 
-    if CFG['use_sam']: 
-        base_optimizer = AdamW
-        optimizer      = SAM(model.parameters(), base_optimizer, \
-                         lr = CFG['LR'], adaptive = CFG['use_asam'], rho = CFG['asam_rho'])
-    else:
-        optimizer      = get_optimizer(model.parameters(), CFG)
-
     optimizer = get_optimizer(model.parameters(), CFG)
     scheduler = get_scheduler(optimizer, CFG)
     criterion = get_criterion(CFG)
@@ -202,13 +190,20 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
     best_model = None
     best_score  = -np.inf
     best_predictions = None
+    train_losses_plot, valid_losses_plot = [], []
+    train_scores_plot, valid_scores_plot = [], []
     for epoch in range(CFG['epochs']):
         start_epoch = time.time()
 
         if CFG['update_per_batch'] == False: scheduler.step(epoch)
 
-        train_avg_accuracy = train_epoch(model, trainloader, optimizer, criterion, scheduler, epoch, DEVICE, scaler, CFG, logger)
-        valid_avg_accuracy, valid_predictions = valid_epoch(model, validloader, criterion, DEVICE, CFG, logger)
+        train_avg_accuracy, train_losses, train_scores = train_epoch(model, trainloader, optimizer, criterion, scheduler, epoch, DEVICE, scaler, CFG, logger)
+        valid_avg_accuracy, valid_predictions, valid_losses, valid_scores = valid_epoch(model, validloader, criterion, DEVICE, CFG, logger)
+
+        train_losses_plot.append(train_losses)
+        train_scores_plot.append(train_scores)
+        valid_losses_plot.append(valid_losses)
+        valid_scores_plot.append(valid_scores)
 
         accuracy  = accuracy_score(valid_labels, valid_predictions) 
         precision = precision_score(valid_labels, valid_predictions, average = 'weighted')
@@ -216,8 +211,8 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
 
         elapsed = time.time() - start_epoch
 
-        logger.print("Valid Labels Samples: {}".format(valid_labels[: 10]))
-        logger.print("Valid Predictions Samples: {}".format(valid_predictions[: 10]))
+        logger.print("Valid Labels Distribution: {}, {}".format(*np.unique(valid_labels, return_counts = True)))
+        logger.print("Valid Predictions Distribution: {}, {}".format(*np.unique(valid_predictions, return_counts = True)))
         logger.print(f'Epoch {epoch + 1} - Train Average Loss: {train_avg_accuracy:.3f}, Valid Average Loss: {valid_avg_accuracy:.3f}, Epoch Time: {elapsed:.3f}s')
         logger.print(f'Epoch {epoch + 1} - Accuracy: {accuracy:.3f}, Precision: {precision:.3f}, Recall: {recall:.3f}')
 
@@ -234,7 +229,34 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
                 'oof_ids':    valid_ids
             }
 
-        if train_avg_accuracy - valid_avg_accuracy > 20: break
+        if train_avg_accuracy - valid_avg_accuracy > 20: 
+            logger.print("[EXIT] Overfitting Condition...")
+            break
+
+    if CFG['save_to_log']:
+        xcoords = [x for x in range(1, epoch + 1)]
+        plt.clf()
+        plt.plot(train_losses_plot, '-D', markevery = xcoords, label = 'Train Losses')
+        plt.plot(valid_losses_plot, '-D', markevery = xcoords, label = 'Valid Losses')
+        plt.title(f"[Model {CFG['id']}, Fold {fold}]: Losses Plot")
+        plt.xlabel("Epochs")
+        plt.ylabel("Losses")
+        plt.legend(loc = True)
+        plt.savefig(os.path.join(
+            PATH_TO_MODELS,
+            f"losses_plot_model_{CFG['id']}_fold_{fold}.png"
+        ))
+        plt.clf()
+        plt.plot(train_scores_plot, '-D', markevery = xcoords, label = 'Train Scores')
+        plt.plot(valid_scores_plot, '-D', markevery = xcoords, label = 'Valid Scores')
+        plt.title(f"[Model {CFG['id']}, Fold {fold}]: Scores Plot")
+        plt.xlabel("Epochs")
+        plt.ylabel("Scores")
+        plt.legend(loc = True)
+        plt.savefig(os.path.join(
+            PATH_TO_MODELS,
+            f"scores_plot_model_{CFG['id']}_fold_{fold}.png"
+        ))
 
     return oof, best_score, best_model
 
@@ -269,10 +291,10 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
         fold_accuracies.append(fold_accuracy)
         if CFG['one_fold']: break
 
-    #if CFG['one_fold'] == False:
-    #    predictions = pd.read_csv(PATH_TO_OOF)
-    #    predictions['model_{}'.format(CFG['id'])] = oof + 1
-    #    predictions.to_csv(PATH_TO_OOF, index = False)
+    if CFG['one_fold'] == False:
+       predictions = pd.read_csv(PATH_TO_OOF)
+       predictions['model_{}'.format(CFG['id'])] = oof + 1
+       predictions.to_csv(PATH_TO_OOF, index = False)
 
     OUTPUT["oof-accuracy"]  = accuracy_score(train['label'].values, oof)
     OUTPUT["oof-precision"] = precision_score(train['label'].values, oof, average = 'weighted')
@@ -329,8 +351,8 @@ if __name__ == "__main__":
         'max_lr': 1e-4,
         'no_batches': 'NA',
         'warmup_epochs': 1,
-        'cosine_epochs': 19,
-        'epochs' : 20,
+        'cosine_epochs': 9,
+        'epochs' : 10,
         'update_per_batch': True,
 
         'num_workers': 4,
@@ -347,7 +369,7 @@ if __name__ == "__main__":
         'swa_epoch':  0,
 
         # Adaptive Sharpness-Aware Minimization
-        'use_sam':  True,
+        'use_sam':  False,
         'use_asam': True,
         'asam_rho': 0.1,
 

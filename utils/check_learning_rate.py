@@ -5,12 +5,12 @@ sys.path.append(parentdir)
 from utils import *
 
 CFG = {
-    'learning_rate' : 1e-5,
-    'scheduler_name': 'OneCycleLR',
+    'learning_rate' : 7e-5,
+    'scheduler_name': 'CosineAnnealingWarmRestarts',
 
-    'T_0': 500,
+    'T_0': 59,
     'T_max': 10,
-    'T_mult': 5,
+    'T_mult': 2,
     'min_lr': 1e-6,
     'max_lr': 1e-3,
 
@@ -19,9 +19,10 @@ CFG = {
 
     'warmup_epochs': 1,
     'cosine_epochs': 19,
-    'epochs': 20,
+    'epochs': 10,
 
     'update_per_batch': True,
+    'print_freq': 50
 }
 
 def get_scheduler(optimizer, scheduler_params = CFG):
@@ -74,9 +75,10 @@ lrs = []
 for epoch in range(CFG['epochs']):
     print(f"EPOCH: {epoch}")
     for step, (data, target) in enumerate(loader):
-        # print('[Epoch]: {}, [Batch]: {}, [LR]: {}'.format(
-        #     epoch, step, optimizer.param_groups[0]['lr']))
-        
+        if step % CFG['print_freq'] == 0 or step == (len(loader) - 1):
+            print('[Epoch]: {}, [Batch]: {}, [LR]: {}'.format(
+                epoch, step, np.round(scheduler.get_lr()[0], 6)))
+            
         lrs.append(optimizer.param_groups[0]['lr'])
         optimizer.zero_grad()
 
@@ -91,6 +93,9 @@ for epoch in range(CFG['epochs']):
 
     if CFG['update_per_batch'] == False: scheduler.step()
 
+xcoords = [CFG['no_batches'] * x for x in range(CFG['epochs'])]
 plt.figure(figsize = (10, 18))
+for xc in xcoords:
+    plt.axvline(x = xc, color = 'red')
 plt.plot(lrs)
 plt.show()

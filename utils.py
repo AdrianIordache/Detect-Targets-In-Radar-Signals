@@ -39,6 +39,7 @@ import timm
 
 from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, precision_score, recall_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
+from asam import SAM
 
 import warnings
 warnings.filterwarnings("ignore")
