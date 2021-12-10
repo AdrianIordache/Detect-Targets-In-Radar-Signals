@@ -296,9 +296,9 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
         ))
 
     if CFG['use_swa']:
-        return oof, best_score, best_model, swa_oof, swa_best_score, swa_best_model
+        return oof, swa_oof, swa_best_score, swa_best_model 
     else:
-        return oof, best_score, best_model, None, None, None
+        return oof, None, best_score, best_model
 
 def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     seed_everything(SEED)
@@ -329,39 +329,35 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     best_models = []
     fold_accuracies = []
     for fold in range(CFG['n_folds']):
-        oof, fold_accuracy, best_model, swa_oof, swa_accuracy, swa_best_model = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE, swa_oof)
-        
-        if CFG['use_swa']:
-            best_models.append((swa_accuracy, copy.deepcopy(swa_best_model)))
-            swa_fold_accuracies.append(swa_accuracy)
-        else:
-            best_models.append((fold_accuracy, copy.deepcopy(best_model)))
-            fold_accuracies.append(fold_accuracy)
+        oof, accuracy, best_model, swa_oof = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE, swa_oof)
+    
+        best_models.append((accuracy, copy.deepcopy(best_model)))
+        fold_accuracies.append(accuracy)
 
         free_gpu_memory(DEVICE)
         if CFG['one_fold']: break
 
-    if CFG['one_fold'] == False:
-       predictions = pd.read_csv(PATH_TO_OOF)
-       predictions['model_{}'.format(CFG['id'])] = oof + 1
+    # if CFG['one_fold'] == False:
+    #    predictions = pd.read_csv(PATH_TO_OOF)
+    #    predictions['model_{}'.format(CFG['id'])] = oof + 1
 
-       if CFG['use_swa']: 
-            predictions['swa_model_{}'.format(CFG['id'])] = swa_oof + 1
+    #    if CFG['use_swa']: 
+    #         predictions['swa_model_{}'.format(CFG['id'])] = swa_oof + 1
 
-       predictions.to_csv(PATH_TO_OOF, index = False)
+    #    predictions.to_csv(PATH_TO_OOF, index = False)
 
-    OUTPUT["oof-accuracy"]  = accuracy_score(train['label'].values, oof)
-    OUTPUT["oof-precision"] = precision_score(train['label'].values, oof, average = 'weighted')
-    OUTPUT["oof-recall"]    = recall_score(train['label'].values, oof, average = 'weighted')
+    # OUTPUT["oof-accuracy"]  = accuracy_score(train['label'].values, oof)
+    # OUTPUT["oof-precision"] = precision_score(train['label'].values, oof, average = 'weighted')
+    # OUTPUT["oof-recall"]    = recall_score(train['label'].values, oof, average = 'weighted')
 
-    OUTPUT["cross-validation"] = fold_accuracies
-    GLOBAL_LOGGER.append(CFG, OUTPUT)
+    # OUTPUT["cross-validation"] = fold_accuracies
+    # GLOBAL_LOGGER.append(CFG, OUTPUT)
 
     return RD(np.mean(fold_accuracies)), best_models 
 
 if __name__ == "__main__":
     QUIET = False
-    SAVE_TO_LOG = False
+    SAVE_TO_LOG = True
     DISTRIBUTED_TRAINING = False
 
     parser = argparse.ArgumentParser()
@@ -384,7 +380,7 @@ if __name__ == "__main__":
         'model_name': 'swin_large_patch4_window12_384_in22k', # 'beit_large_patch16_224_in22k', # 'swin_large_patch4_window12_384_in22k',
         'dropout': 0.5,
         'size': 384,
-        'batch_size_t': 5,
+        'batch_size_t': 4,
         'batch_size_v': 32,
 
         # Criterion and Gradient Control
@@ -443,7 +439,7 @@ if __name__ == "__main__":
         logger = Logger(distributed = QUIET)
 
     accuracy, best_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
-    
+
     if CFG['use_swa']:
         print(f"SWA Accuracy: {accuracy}")
 
