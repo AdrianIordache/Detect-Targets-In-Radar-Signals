@@ -5,21 +5,21 @@ sys.path.append(parentdir)
 from utils import *
 
 CFG = {
-    'learning_rate' : 7e-5,
-    'scheduler_name': 'CosineAnnealingWarmRestarts',
+    'learning_rate' : 1e-6,
+    'scheduler_name': 'OneCycleLR',
 
-    'T_0': 59,
+    'T_0': 62, # ['CosineAnnealingWarmRestarts', (59, 2, 12) (62, 3, 9)]
     'T_max': 10,
-    'T_mult': 2,
-    'min_lr': 1e-6,
-    'max_lr': 1e-3,
+    'T_mult': 3,
+    'min_lr': 1e-7,
+    'max_lr': 3e-3,
 
     'no_batches': 2480, # 1231, # 1652,
     'batch_size': 5,
 
     'warmup_epochs': 1,
-    'cosine_epochs': 19,
-    'epochs': 10,
+    'cosine_epochs': 8,
+    'epochs': 9,
 
     'update_per_batch': True,
     'print_freq': 50

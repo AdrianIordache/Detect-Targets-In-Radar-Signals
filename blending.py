@@ -18,9 +18,12 @@ from IPython.display import display
 # (1, 1, 42, 'S') + (1, 1, 43, 'S') + (1, '1+1', '42+43', 'S') -> 0.80509
 
 # (1, 1, 42, 'N') + (1, 1, 43, 'N') + (1, 1, 42, 'S') + (1, 1, 43, 'S') + (1, '1+1', '42+43', 'S') -> 0.80218
-# (0, 0, 0, 'N')  + (1, 1, 42, 'N') + (1, '1+1', '42+43', 'S') -> 0.80872
 
-STAGES_GPUS_VERSIONS = [(0, 0, 0, 'N'), (1, 1, 42, 'N'), (1, '1+1', '42+43', 'S')]
+# (0, 0, 0, 'N')  + (1, 1, 42, 'N') + (1, '1+1', '42+43', 'S') -> 0.80872
+# (0, 0, 0, 'N')  + (1, '1+1', '42+43', 'S') -> 0.79781
+# (1, 1, 42, 'N') + (1, '1+1', '42+43', 'S') -> 0.80363
+
+STAGES_GPUS_VERSIONS = [(1, 1, 42, 'N'), (1, '1+1', '42+43', 'S')]
 
 general_votes = pd.DataFrame()
 general_preds = pd.DataFrame()
@@ -97,11 +100,11 @@ print(f"All voted: {count_ones}")
 # plt.bar(*np.unique(final_predictions, return_counts = True))
 # plt.show()
 
-if 0:
+if 1:
     submission = pd.DataFrame(columns = ['id', 'label'])
     submission['id']    = general_votes['id']
     submission['label'] = final_predictions
     submission['label'] = submission['label'].astype(int)
 
-    submission.to_csv("ensambles/ensamble_voting_5.csv", index = False)
+    submission.to_csv("ensambles/ensamble_voting_7.csv", index = False)
     display(submission)

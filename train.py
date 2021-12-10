@@ -182,6 +182,12 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
     scheduler = get_scheduler(optimizer, CFG)
     criterion = get_criterion(CFG)
 
+    if CFG['use_swa']:
+        swa_best_model = None
+        swa_best_score = -np.inf
+        swa_best_predictions = None
+        swa_model = AveragedModel(model)
+
     if CFG['use_apex']:
         scaler = GradScaler()
     else:
@@ -229,9 +235,40 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
                 'oof_ids':    valid_ids
             }
 
-        if train_avg_accuracy - valid_avg_accuracy > 20: 
+        if CFG['use_swa'] and epoch + 1 in CFG['swa_epoch']:
+            swa_model.update_parameters(model)
+            valid_swa_accuracy, valid_swa_predictions, _, _ = valid_epoch(swa_model, validloader, criterion, DEVICE, CFG, logger)
+
+            swa_accuracy  = accuracy_score(valid_labels, valid_swa_predictions) 
+            swa_precision = precision_score(valid_labels, valid_swa_predictions, average = 'weighted')
+            swa_recall    = recall_score(valid_labels, valid_swa_predictions, average = 'weighted')
+
+            logger.print(f'Epoch {epoch + 1} - Baseline Accuracy: {accuracy:.3f} - SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
+            if swa_accuracy > swa_best_score:
+                swa_best_score = swa_accuracy
+                swa_best_model = copy.deepcopy(swa_model)
+                swa_best_predictions = valid_swa_predictions
+
+        if train_avg_accuracy - valid_avg_accuracy > 50: 
             logger.print("[EXIT] Overfitting Condition...")
             break
+
+    if CFG['use_swa']:
+        torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
+        valid_swa_accuracy, valid_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
+
+        best_swa_model = {
+            'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
+            'oof_proba':  valid_swa_predictions,
+            'oof_labels': valid_labels,
+            'oof_ids':    valid_ids
+        }
+
+        swa_accuracy  = accuracy_score(valid_labels, valid_swa_predictions) 
+        swa_precision = precision_score(valid_labels, valid_swa_predictions, average = 'weighted')
+        swa_recall    = recall_score(valid_labels, valid_swa_predictions, average = 'weighted')
+
+        logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
 
     if CFG['save_to_log']:
         xcoords = [x for x in range(1, epoch + 1)]
@@ -366,7 +403,7 @@ if __name__ == "__main__":
         # Stochastic Weight Averaging
         'use_swa': True,
         'swa_lr':  0.01,
-        'swa_epoch':  0,
+        'swa_epoch': [3, 5, 6, 10, 11, 12],
 
         # Adaptive Sharpness-Aware Minimization
         'use_sam':  False,
