@@ -326,18 +326,19 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     if CFG['use_swa']:
         swa_oof = copy.deepcopy(oof)
 
-    best_models, best_swa_models = [], []
-    fold_accuracies, swa_fold_accuracies = [], []
+    best_models = []
+    fold_accuracies = []
     for fold in range(CFG['n_folds']):
         oof, fold_accuracy, best_model, swa_oof, swa_accuracy, swa_best_model = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE, swa_oof)
         
-        best_models.append((fold_accuracy, copy.deepcopy(best_model)))
-        fold_accuracies.append(fold_accuracy)
-
         if CFG['use_swa']:
-            best_swa_models.append(swa_accuracy, copy.deepcopy(swa_best_model))
+            best_models.append((swa_accuracy, copy.deepcopy(swa_best_model)))
             swa_fold_accuracies.append(swa_accuracy)
+        else:
+            best_models.append((fold_accuracy, copy.deepcopy(best_model)))
+            fold_accuracies.append(fold_accuracy)
 
+        free_gpu_memory(DEVICE)
         if CFG['one_fold']: break
 
     if CFG['one_fold'] == False:
@@ -356,10 +357,7 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     OUTPUT["cross-validation"] = fold_accuracies
     GLOBAL_LOGGER.append(CFG, OUTPUT)
 
-    if CFG['use_swa']:
-        return RD(np.mean(fold_accuracies)), best_models 
-    else:
-        return RD(np.mean(fold_accuracies)), best_models, RD(np.mean(swa_fold_accuracies)), best_swa_models
+    return RD(np.mean(fold_accuracies)), best_models 
 
 if __name__ == "__main__":
     QUIET = False
@@ -444,27 +442,18 @@ if __name__ == "__main__":
     else:
         logger = Logger(distributed = QUIET)
 
+    accuracy, best_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+    
     if CFG['use_swa']:
-        accuracy, best_models, swa_accuracy, best_swa_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
-        print(f"Accuracy: {accuracy}")
-        print(f"SWA Accuracy: {swa_accuracy}")  
+        print(f"SWA Accuracy: {accuracy}")
 
         if CFG['save_to_log']:
             for fold, (accuracy, model) in enumerate(best_models): 
-                torch.save(
-                    model, 
-                    os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
-                )
-            
-            for fold, (accuracy, model) in enumerate(best_swa_models): 
                 torch.save(
                     model, 
                     os.path.join(PATH_TO_MODELS, f"swa_model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
                 )
-
-
     else:
-        accuracy, best_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
         print(f"Accuracy: {accuracy}")
 
         if CFG['save_to_log']:
@@ -472,6 +461,5 @@ if __name__ == "__main__":
                 torch.save(
                     model, 
                     os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
-                )
-                
-    
+                )       
+
