@@ -321,17 +321,18 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
         random_state = SEED
     )
 
-    oof   = np.zeros((train.shape[0],), dtype = np.float32)
+    oof     = np.zeros((train.shape[0],), dtype = np.float32)
+    swa_oof = copy.deepcopy(oof)
 
-    if CFG['use_swa']:
-        swa_oof = copy.deepcopy(oof)
-
-    best_models = []
     fold_accuracies = []
     for fold in range(CFG['n_folds']):
         oof, accuracy, best_model, swa_oof = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE, swa_oof)
-    
-        best_models.append((accuracy, copy.deepcopy(best_model)))
+        
+        torch.save(
+            best_model, 
+            os.path.join(PATH_TO_MODELS, f"swa_model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
+        )
+
         fold_accuracies.append(accuracy)
 
         free_gpu_memory(DEVICE)
@@ -353,7 +354,7 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     # OUTPUT["cross-validation"] = fold_accuracies
     # GLOBAL_LOGGER.append(CFG, OUTPUT)
 
-    return RD(np.mean(fold_accuracies)), best_models 
+    return RD(np.mean(fold_accuracies)) 
 
 if __name__ == "__main__":
     QUIET = False
@@ -438,24 +439,9 @@ if __name__ == "__main__":
     else:
         logger = Logger(distributed = QUIET)
 
-    accuracy, best_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
-
+    accuracy = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+    
     if CFG['use_swa']:
         print(f"SWA Accuracy: {accuracy}")
-
-        if CFG['save_to_log']:
-            for fold, (accuracy, model) in enumerate(best_models): 
-                torch.save(
-                    model, 
-                    os.path.join(PATH_TO_MODELS, f"swa_model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
-                )
     else:
         print(f"Accuracy: {accuracy}")
-
-        if CFG['save_to_log']:
-            for fold, (accuracy, model) in enumerate(best_models): 
-                torch.save(
-                    model, 
-                    os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
-                )       
-
