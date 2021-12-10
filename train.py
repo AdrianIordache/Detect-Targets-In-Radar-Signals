@@ -245,9 +245,9 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
 
             logger.print(f'Epoch {epoch + 1} - Baseline Accuracy: {accuracy:.3f} - SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
             if swa_accuracy > swa_best_score:
+                logger.print(f'Saved Best Model: {swa_accuracy:.2f}')
+                swa_best_model = swa_model
                 swa_best_score = swa_accuracy
-                swa_best_model = copy.deepcopy(swa_model)
-                swa_best_predictions = valid_swa_predictions
 
         if train_avg_accuracy - valid_avg_accuracy > 50: 
             logger.print("[EXIT] Overfitting Condition...")
@@ -255,11 +255,12 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
 
     if CFG['use_swa']:
         torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
-        valid_swa_accuracy, valid_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
+        swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
+        swa_oof[valid_idx] = valid_swa_predictions
 
         best_swa_model = {
             'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
-            'oof_proba':  valid_swa_predictions,
+            'oof_proba':  best_swa_predictions,
             'oof_labels': valid_labels,
             'oof_ids':    valid_ids
         }
@@ -267,7 +268,6 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
         swa_accuracy  = accuracy_score(valid_labels, valid_swa_predictions) 
         swa_precision = precision_score(valid_labels, valid_swa_predictions, average = 'weighted')
         swa_recall    = recall_score(valid_labels, valid_swa_predictions, average = 'weighted')
-
         logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
 
     if CFG['save_to_log']:
@@ -295,7 +295,10 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
             f"scores_plot_model_{CFG['id']}_fold_{fold}.png"
         ))
 
-    return oof, best_score, best_model
+    if CFG['use_swa']:
+        return oof, best_score, best_model, swa_oof, swa_best_score, swa_best_model
+    else:
+        return oof, best_score, best_model, None, None, None
 
 def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     seed_everything(SEED)
@@ -320,17 +323,30 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
 
     oof   = np.zeros((train.shape[0],), dtype = np.float32)
 
-    best_models = []
-    fold_accuracies = []
+    if CFG['use_swa']:
+        swa_oof = copy.deepcopy(oof)
+
+    best_models, best_swa_models = [], []
+    fold_accuracies, swa_fold_accuracies = [], []
     for fold in range(CFG['n_folds']):
-        oof, fold_accuracy, best_model = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE)
+        oof, fold_accuracy, best_model, swa_oof, swa_accuracy, swa_best_model = train_fold(CFG, train, fold, oof, logger, PATH_TO_MODELS, DEVICE, swa_oof)
+        
         best_models.append((fold_accuracy, copy.deepcopy(best_model)))
         fold_accuracies.append(fold_accuracy)
+
+        if CFG['use_swa']:
+            best_swa_models.append(swa_accuracy, copy.deepcopy(swa_best_model))
+            swa_fold_accuracies.append(swa_accuracy)
+
         if CFG['one_fold']: break
 
     if CFG['one_fold'] == False:
        predictions = pd.read_csv(PATH_TO_OOF)
        predictions['model_{}'.format(CFG['id'])] = oof + 1
+
+       if CFG['use_swa']: 
+            predictions['swa_model_{}'.format(CFG['id'])] = swa_oof + 1
+
        predictions.to_csv(PATH_TO_OOF, index = False)
 
     OUTPUT["oof-accuracy"]  = accuracy_score(train['label'].values, oof)
@@ -340,7 +356,10 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     OUTPUT["cross-validation"] = fold_accuracies
     GLOBAL_LOGGER.append(CFG, OUTPUT)
 
-    return RD(np.mean(fold_accuracies)), best_models
+    if CFG['use_swa']:
+        return RD(np.mean(fold_accuracies)), best_models 
+    else:
+        return RD(np.mean(fold_accuracies)), best_models, RD(np.mean(swa_fold_accuracies)), best_swa_models
 
 if __name__ == "__main__":
     QUIET = False
@@ -425,12 +444,34 @@ if __name__ == "__main__":
     else:
         logger = Logger(distributed = QUIET)
 
-    accuracy, best_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
-    if CFG['save_to_log']:
-        for fold, (accuracy, model) in enumerate(best_models): 
-            torch.save(
-                model, 
-                os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
-            )
+    if CFG['use_swa']:
+        accuracy, best_models, swa_accuracy, best_swa_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+        print(f"Accuracy: {accuracy}")
+        print(f"SWA Accuracy: {swa_accuracy}")  
+
+        if CFG['save_to_log']:
+            for fold, (accuracy, model) in enumerate(best_models): 
+                torch.save(
+                    model, 
+                    os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
+                )
             
-    print(f"Accuracy: {accuracy}")
+            for fold, (accuracy, model) in enumerate(best_swa_models): 
+                torch.save(
+                    model, 
+                    os.path.join(PATH_TO_MODELS, f"swa_model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
+                )
+
+
+    else:
+        accuracy, best_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+        print(f"Accuracy: {accuracy}")
+
+        if CFG['save_to_log']:
+            for fold, (accuracy, model) in enumerate(best_models): 
+                torch.save(
+                    model, 
+                    os.path.join(PATH_TO_MODELS, f"model_{CFG['id']}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy:.2f}.pth")
+                )
+                
+    
