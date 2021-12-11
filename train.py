@@ -333,35 +333,35 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
         fold_accuracies.append(fold_accuracy)
 
         if CFG['use_swa']:
-            best_swa_models.append(swa_accuracy, copy.deepcopy(swa_best_model))
+            best_swa_models.append((swa_accuracy, copy.deepcopy(swa_best_model)))
             swa_fold_accuracies.append(swa_accuracy)
 
         if CFG['one_fold']: break
 
-    # if CFG['one_fold'] == False:
-    #    predictions = pd.read_csv(PATH_TO_OOF)
-    #    predictions['model_{}'.format(CFG['id'])] = oof + 1
+    if CFG['one_fold'] == False:
+        predictions = pd.read_csv(PATH_TO_OOF)
+        predictions['model_{}'.format(CFG['id'])] = oof + 1
 
-    #    if CFG['use_swa']: 
-    #         predictions['swa_model_{}'.format(CFG['id'])] = swa_oof + 1
+        if CFG['use_swa']: 
+             predictions['swa_model_{}'.format(CFG['id'])] = swa_oof + 1
 
-    #    predictions.to_csv(PATH_TO_OOF, index = False)
+        predictions.to_csv(PATH_TO_OOF, index = False)
 
-    # OUTPUT["oof-accuracy"]  = accuracy_score(train['label'].values, oof)
-    # OUTPUT["oof-precision"] = precision_score(train['label'].values, oof, average = 'weighted')
-    # OUTPUT["oof-recall"]    = recall_score(train['label'].values, oof, average = 'weighted')
+    OUTPUT["oof-accuracy"]  = accuracy_score(train['label'].values, oof)
+    OUTPUT["oof-precision"] = precision_score(train['label'].values, oof, average = 'weighted')
+    OUTPUT["oof-recall"]    = recall_score(train['label'].values, oof, average = 'weighted')
 
-    # OUTPUT["cross-validation"] = fold_accuracies
-    # GLOBAL_LOGGER.append(CFG, OUTPUT)
+    OUTPUT["cross-validation"] = fold_accuracies
+    GLOBAL_LOGGER.append(CFG, OUTPUT)
 
-    if CFG['use_swa']:
+    if CFG['use_swa'] == False:
         return RD(np.mean(fold_accuracies)), best_models 
     else:
         return RD(np.mean(fold_accuracies)), best_models, RD(np.mean(swa_fold_accuracies)), best_swa_models
 
 if __name__ == "__main__":
-    QUIET = False
-    SAVE_TO_LOG = False
+    QUIET = True
+    SAVE_TO_LOG = True
     DISTRIBUTED_TRAINING = False
 
     parser = argparse.ArgumentParser()
@@ -398,15 +398,15 @@ if __name__ == "__main__":
         'scheduler': "CosineAnnealingWarmRestarts",
         
         'LR': 7e-05,
-        'T_0': 200,
+        'T_0': 53,
         'T_max': 10,
-        'T_mult': 2,
+        'T_mult': 3,
         'min_lr': 1e-6,
         'max_lr': 1e-4,
         'no_batches': 'NA',
         'warmup_epochs': 1,
-        'cosine_epochs': 9,
-        'epochs' : 10,
+        'cosine_epochs': 5,
+        'epochs' : 6,
         'update_per_batch': True,
 
         'num_workers': 4,
@@ -420,7 +420,7 @@ if __name__ == "__main__":
         # Stochastic Weight Averaging
         'use_swa': True,
         'swa_lr':  0.01,
-        'swa_epoch': [3, 5, 6, 10, 11, 12],
+        'swa_epoch': [2, 4, 5, 6],
 
         # Adaptive Sharpness-Aware Minimization
         'use_sam':  False,
