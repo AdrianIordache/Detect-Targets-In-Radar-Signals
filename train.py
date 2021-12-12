@@ -256,7 +256,7 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
     if CFG['use_swa']:
         torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
         swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
-        swa_oof[valid_idx] = valid_swa_predictions
+        swa_oof[valid_idx] = best_swa_predictions
 
         best_swa_model = {
             'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
@@ -265,9 +265,9 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
             'oof_ids':    valid_ids
         }
 
-        swa_accuracy  = accuracy_score(valid_labels, valid_swa_predictions) 
-        swa_precision = precision_score(valid_labels, valid_swa_predictions, average = 'weighted')
-        swa_recall    = recall_score(valid_labels, valid_swa_predictions, average = 'weighted')
+        swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
+        swa_precision = precision_score(valid_labels, best_swa_predictions, average = 'weighted')
+        swa_recall    = recall_score(valid_labels, best_swa_predictions, average = 'weighted')
         logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
 
     if CFG['save_to_log']:
@@ -296,7 +296,7 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
         ))
 
     if CFG['use_swa']:
-        return oof, best_score, best_model, swa_oof, swa_best_score, best_swa_model
+        return oof, best_score, best_model, swa_oof, swa_accuracy, best_swa_model
     else:
         return oof, best_score, best_model, None, None, None
 
@@ -352,6 +352,10 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     OUTPUT["oof-recall"]    = recall_score(train['label'].values, oof, average = 'weighted')
 
     OUTPUT["cross-validation"] = fold_accuracies
+
+    if CFG['use_swa']:
+         OUTPUT["cross-validation"] = fold_accuracies + swa_fold_accuracies
+
     GLOBAL_LOGGER.append(CFG, OUTPUT)
 
     if CFG['use_swa'] == False:
@@ -398,15 +402,15 @@ if __name__ == "__main__":
         'scheduler': "CosineAnnealingWarmRestarts",
         
         'LR': 7e-05,
-        'T_0': 53,
+        'T_0': 74,
         'T_max': 10,
-        'T_mult': 3,
+        'T_mult': 2,
         'min_lr': 1e-6,
         'max_lr': 1e-4,
         'no_batches': 'NA',
         'warmup_epochs': 1,
-        'cosine_epochs': 5,
-        'epochs' : 6,
+        'cosine_epochs': 11,
+        'epochs' : 12,
         'update_per_batch': True,
 
         'num_workers': 4,
@@ -420,7 +424,7 @@ if __name__ == "__main__":
         # Stochastic Weight Averaging
         'use_swa': True,
         'swa_lr':  0.01,
-        'swa_epoch': [2, 4, 5, 6],
+        'swa_epoch': [3, 5, 6, 10, 11, 12],
 
         # Adaptive Sharpness-Aware Minimization
         'use_sam':  False,
