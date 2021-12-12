@@ -33,6 +33,9 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
            pretrained      = False,
         ).to(DEVICE)
         
+        if CFG['use_swa']:
+            model = AveragedModel(model)
+
         model.load_state_dict(states['model'])       
         model.eval() 
 
@@ -90,11 +93,14 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
         del states, tta_predictions
         gc.collect()
     
-    oof = oof.reshape((test.shape[0], -1))
+    oof  = oof.reshape((test.shape[0], -1))
+    path = f'models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/'
 
     votes = pd.DataFrame(oof.astype(int), columns = [f"vote_{vote}" for vote in range(oof.shape[1])])
     votes['id'] = copy.deepcopy(test['id'])
-    votes.to_csv(f'models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/votes_stage_{STAGE}_gpu_{GPU}_version_{VERSION}.csv', index = False)
+    votes_name = f'votes_stage_{STAGE}_gpu_{GPU}_version_{VERSION}.csv'
+    if CFG['use_swa']: votes_name = 'swa_' + votes_name
+    votes.to_csv(os.path.join(path, votes_name), index = False)
 
     final_predictions = []
     for i in range(oof.shape[0]):
@@ -109,14 +115,17 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
     if VERBOSE: display(submission)
     toc = time.time()
 
-    submission.to_csv(f'models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/submission_stage_{STAGE}_gpu_{GPU}_version_{VERSION}.csv', index = False)
+    submission_name = f'submission_stage_{STAGE}_gpu_{GPU}_version_{VERSION}.csv'
+    if CFG['use_swa']: submission_name = 'swa_' + submission_name
+    submission.to_csv(os.path.join(path, submission_name), index = False)
+
     if VERBOSE: print("Inference Time: {}'s".format(toc - tic))
 
 
 if __name__ == "__main__":
-    STAGE   = 1
+    STAGE   = 2
     GPU     = 1
-    VERSION = 43
+    VERSION = 0
     FOLDS   = [(0, "0.77"), (1, "0.76"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
 
     CFG = {
@@ -128,7 +137,7 @@ if __name__ == "__main__":
 
         'n_targets': 5,
         'num_workers': 4,
-        'n_folds': 3,
+        'n_folds': 5,
 
         # Augumentations and other obserrvations for experiment
         'train_transforms': [],
@@ -136,7 +145,7 @@ if __name__ == "__main__":
         'observations':   None,
 
         # Stochastic Weight Averaging
-        'use_swa': True,
+        'use_swa': False,
 
         # Parameters for script control
         'print_freq': 50,
