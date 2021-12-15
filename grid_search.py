@@ -126,8 +126,9 @@ if __name__ == "__main__":
                                 logger = Logger(distributed = QUIET)
 
                             accuracy, best_models, swa_accuracy, swa_best_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+                            CFG['use_swa'] = False
 
-                            inference(best_models, CFG, GPU, VERBOSE = (not QUIET))
+                            inference(best_models, CFG, GPU, GPU, VERBOSE = (not QUIET))
 
                             if SAVE_MODEL:
                                 for fold, (accuracy, model) in enumerate(best_models): 

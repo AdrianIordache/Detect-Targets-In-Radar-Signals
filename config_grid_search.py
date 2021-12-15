@@ -1,6 +1,6 @@
 import albumentations as A 
 
-if STAGE == 2:
+if True:
 	configs = {
 		"GPU-0":{
 			"model_config": [('swin_large_patch4_window12_384_in22k', 384)],
@@ -12,7 +12,7 @@ if STAGE == 2:
 					'T_0': 74,
 					'T_mult': 2,
 					'min_lr': 1e-6
-				}] 
+				}],
 			"swa": [[3, 5, 6, 10, 11, 12]]
 		},
 		"GPU-1":{
@@ -31,7 +31,7 @@ if STAGE == 2:
 		}
 	}
 
-if STAGE == 1:
+if False:
 	configs = {
 		"GPU-0":{
 			"model_config": [('swin_large_patch4_window12_384_in22k', 384)],

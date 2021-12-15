@@ -308,7 +308,7 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
     train["label"] = train["label"].apply(lambda x: x - 1)
     # train = train[train['all_wrong'] == 1].reset_index(drop = True)
-    # train = train.sample(100, random_state = SEED).reset_index(drop = True)
+    # train = train.sample(50, random_state = SEED).reset_index(drop = True)
 
     PATH_TO_OOF = f"logs/stage-{STAGE}/gpu-{GPU}/oof.csv"
     logger.print(f"[GPU {GPU}]: Config File")
@@ -335,7 +335,8 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
         if CFG['use_swa']:
             best_swa_models.append((swa_accuracy, copy.deepcopy(swa_best_model)))
             swa_fold_accuracies.append(swa_accuracy)
-
+        
+        free_gpu_memory(DEVICE)
         if CFG['one_fold']: break
 
     if CFG['one_fold'] == False:
@@ -364,7 +365,7 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
         return RD(np.mean(fold_accuracies)), best_models, RD(np.mean(swa_fold_accuracies)), best_swa_models
 
 if __name__ == "__main__":
-    QUIET = True
+    QUIET = False
     SAVE_TO_LOG = True
     DISTRIBUTED_TRAINING = False
 
@@ -399,14 +400,14 @@ if __name__ == "__main__":
 
         # Parameters for optimizers, schedulers and learning_rate
         'optimizer': "AdamW",
-        'scheduler': "CosineAnnealingWarmRestarts",
+        'scheduler': "OneCycleLR",
         
-        'LR': 7e-05,
+        'LR': 0.0002,
         'T_0': 74,
         'T_max': 10,
         'T_mult': 2,
         'min_lr': 1e-6,
-        'max_lr': 1e-4,
+        'max_lr': 0.0002,
         'no_batches': 'NA',
         'warmup_epochs': 1,
         'cosine_epochs': 11,
@@ -424,7 +425,7 @@ if __name__ == "__main__":
         # Stochastic Weight Averaging
         'use_swa': True,
         'swa_lr':  0.01,
-        'swa_epoch': [3, 5, 6, 10, 11, 12],
+        'swa_epoch': [7, 8, 9, 10, 11, 12],
 
         # Adaptive Sharpness-Aware Minimization
         'use_sam':  False,
