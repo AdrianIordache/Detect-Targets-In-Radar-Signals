@@ -4,22 +4,24 @@ parentdir  = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 from utils import *
 
+# Final CV10 ['CosineAnnealingWarmRestarts', (55, 2, 16, 3487, [2, 3, 4, 6, 7, 8, 12, 13, 14, 15, 16])]
+
 CFG = {
-    'learning_rate' : 7e-5,
+    'learning_rate' : 65e-5,
     'scheduler_name': 'CosineAnnealingWarmRestarts',
 
-    'T_0': 59, # ['CosineAnnealingWarmRestarts', (53, 3, 6, 3100, [2, 4, 5, 6]), (74, 2, 12, 3100,  [3, 5, 6, 10, 11, 12]), (59, 2, 12, 2480) (62, 3, 9, 2480)]
+    'T_0': 55, # [(53, 3, 6, 3100, [2, 4, 5, 6]), (74, 2, 12, 3100,  [3, 5, 6, 10, 11, 12]), (59, 2, 12, 2480) (62, 3, 9, 2480)]
     'T_max': 10,
     'T_mult': 2,
     'min_lr': 1e-6,
     'max_lr': 3e-3,
 
-    'no_batches': 2480, # 2480, # 1231, # 1652,
-    'batch_size': 5,
+    'no_batches': 3487, # 2480, # 1231, # 1652,
+    'batch_size': 4,
 
     'warmup_epochs': 1,
-    'cosine_epochs': 11,
-    'epochs': 12,
+    'cosine_epochs': 10,
+    'epochs': 20,
 
     'update_per_batch': True,
     'print_freq': 50

@@ -307,6 +307,7 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     train  = pd.read_csv(PATH_TO_TRAIN_META)
     train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
     train["label"] = train["label"].apply(lambda x: x - 1)
+
     # train = train[train['all_wrong'] == 1].reset_index(drop = True)
     # train = train.sample(50, random_state = SEED).reset_index(drop = True)
 
@@ -320,6 +321,20 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
         n_folds      = CFG['n_folds'], 
         random_state = SEED
     )
+
+    if CFG['use_pseudo_labels']:
+        test_samples = pd.read_csv('data/detect-targets-in-radar-signals/pseudo_labels.csv')
+        test_samples = test_samples[test_samples['all-agreed'] == True].reset_index(drop = True)
+        test_samples = test_samples.rename(columns = {'pseudo_labels': 'label'}, inplace = False)
+
+        test_samples = generate_folds(
+            data         = test_samples, 
+            skf_column   = 'label', 
+            n_folds      = CFG['n_folds'], 
+            random_state = SEED
+        )
+
+        train = pd.concat([train, test_samples], axis = 1, inplace = False).reset_index(drop = True)
 
     oof     = np.zeros((train.shape[0],), dtype = np.float32)
     swa_oof = copy.deepcopy(oof)
@@ -364,10 +379,219 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
     else:
         return RD(np.mean(fold_accuracies)), best_models, RD(np.mean(swa_fold_accuracies)), best_swa_models
 
+def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 0.01):
+    seed_everything(SEED)
+
+    DEVICE = torch.device('cuda:{}'.format(GPU) if torch.cuda.is_available() else 'cpu')
+    train  = pd.read_csv(PATH_TO_TRAIN_META)
+    train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
+    train["label"] = train["label"].apply(lambda x: x - 1)
+
+    PATH_TO_OOF = f"logs/stage-{STAGE}/gpu-{GPU}/oof.csv"
+    logger.print(f"[GPU {GPU}]: Config File")
+    logger.print(CFG)
+
+    train_df, valid_df = train_test_split(train, random_state = SEED, test_size = test_size)
+    train_df = train_df.reset_index(drop = True)
+    valid_df = valid_df.reset_index(drop = True)
+
+    if CFG['use_pseudo_labels']:
+        test_samples = pd.read_csv('data/detect-targets-in-radar-signals/pseudo_labels.csv')
+        test_samples = test_samples[test_samples['all-agreed'] == True].reset_index(drop = True)
+        test_samples = test_samples.rename(columns = {'pseudo_labels': 'label'}, inplace = False)
+
+        test_samples = generate_folds(
+            data         = test_samples, 
+            skf_column   = 'label', 
+            n_folds      = CFG['n_folds'], 
+            random_state = SEED
+        )
+
+        train_df = pd.concat([train_df, test_samples], axis = 1, inplace = False).reset_index(drop = True)
+        
+    train_transforms = A.Compose( 
+        CFG['train_transforms'] + [
+        A.Resize(CFG['size'], CFG['size']),
+        A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+        ToTensorV2()
+    ])
+
+    valid_transforms = A.Compose(
+        CFG['valid_transforms'] + [
+        A.Resize(CFG['size'], CFG['size']),
+        A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+        ToTensorV2()
+    ])
+
+    trainset = RadarSignalsDataset(
+            train_df, 
+            train         = True, 
+            transform     = train_transforms, 
+    )
+
+    validset = RadarSignalsDataset(
+            valid_df, 
+            train         = True, 
+            transform     = valid_transforms, 
+    )
+
+    sampler = None
+
+    trainloader = DataLoader(
+            trainset, 
+            batch_size     = CFG['batch_size_t'], 
+            shuffle        = False, 
+            num_workers    = CFG['num_workers'], 
+            worker_init_fn = seed_worker, 
+            pin_memory     = True,
+            sampler        = sampler, 
+            drop_last      = True
+    )
+
+    validloader = DataLoader(
+            validset, 
+            batch_size     = CFG['batch_size_v'], 
+            shuffle        = False, 
+            num_workers    = CFG['num_workers'], 
+            worker_init_fn = seed_worker, 
+            pin_memory     = True,
+            drop_last      = False
+    )
+    
+    CFG['no_batches'] = len(trainloader)
+
+    model = RadarSignalsModel(
+       model_name      = CFG['model_name'],
+       n_targets       = CFG['n_targets'],
+       pretrained      = True,
+    )
+
+    model.to(DEVICE)
+
+    optimizer = get_optimizer(model.parameters(), CFG)
+    scheduler = get_scheduler(optimizer, CFG)
+    criterion = get_criterion(CFG)
+
+    if CFG['use_swa']:
+        swa_best_model = None
+        swa_best_score = -np.inf
+        swa_best_predictions = None
+        swa_model = AveragedModel(model)
+
+    if CFG['use_apex']:
+        scaler = GradScaler()
+    else:
+        scaler = None
+
+    best_model = None
+    best_score  = -np.inf
+    best_predictions = None
+    train_losses_plot, valid_losses_plot = [], []
+    train_scores_plot, valid_scores_plot = [], []
+    for epoch in range(CFG['epochs']):
+        start_epoch = time.time()
+
+        if CFG['update_per_batch'] == False: scheduler.step(epoch)
+
+        train_avg_accuracy, train_losses, train_scores = train_epoch(model, trainloader, optimizer, criterion, scheduler, epoch, DEVICE, scaler, CFG, logger)
+        valid_avg_accuracy, valid_predictions, valid_losses, valid_scores = valid_epoch(model, validloader, criterion, DEVICE, CFG, logger)
+
+        train_losses_plot.append(train_losses)
+        train_scores_plot.append(train_scores)
+        valid_losses_plot.append(valid_losses)
+        valid_scores_plot.append(valid_scores)
+
+        accuracy  = accuracy_score(valid_labels, valid_predictions) 
+        precision = precision_score(valid_labels, valid_predictions, average = 'weighted')
+        recall    = recall_score(valid_labels, valid_predictions, average = 'weighted')
+
+        elapsed = time.time() - start_epoch
+
+        logger.print("Valid Labels Distribution: {}, {}".format(*np.unique(valid_labels, return_counts = True)))
+        logger.print("Valid Predictions Distribution: {}, {}".format(*np.unique(valid_predictions, return_counts = True)))
+        logger.print(f'Epoch {epoch + 1} - Train Average Loss: {train_avg_accuracy:.3f}, Valid Average Loss: {valid_avg_accuracy:.3f}, Epoch Time: {elapsed:.3f}s')
+        logger.print(f'Epoch {epoch + 1} - Accuracy: {accuracy:.3f}, Precision: {precision:.3f}, Recall: {recall:.3f}')
+
+        if accuracy > best_score:
+            logger.print(f"Saved Best Model: {accuracy:.2f}")
+            best_score = accuracy
+            best_predictions = valid_predictions
+            oof[valid_idx] = best_predictions
+
+            best_model = {
+                'model':     {key: value.cpu() for key, value in model.state_dict().items()},
+                'oof_proba':  best_predictions,
+                'oof_labels': valid_labels,
+                'oof_ids':    valid_ids
+            }
+
+        if CFG['use_swa'] and epoch + 1 in CFG['swa_epoch']:
+            swa_model.update_parameters(model)
+            valid_swa_accuracy, valid_swa_predictions, _, _ = valid_epoch(swa_model, validloader, criterion, DEVICE, CFG, logger)
+
+            swa_accuracy  = accuracy_score(valid_labels, valid_swa_predictions) 
+            swa_precision = precision_score(valid_labels, valid_swa_predictions, average = 'weighted')
+            swa_recall    = recall_score(valid_labels, valid_swa_predictions, average = 'weighted')
+
+            logger.print(f'Epoch {epoch + 1} - Baseline Accuracy: {accuracy:.3f} - SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
+            if swa_accuracy > swa_best_score:
+                logger.print(f'Saved Best Model: {swa_accuracy:.2f}')
+                swa_best_model = swa_model
+                swa_best_score = swa_accuracy
+
+        if train_avg_accuracy - valid_avg_accuracy > 30: 
+            logger.print("[EXIT] Overfitting Condition...")
+            break
+
+    if CFG['use_swa']:
+        torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
+        swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
+        swa_oof[valid_idx] = best_swa_predictions
+
+        best_swa_model = {
+            'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
+            'oof_proba':  best_swa_predictions,
+            'oof_labels': valid_labels,
+            'oof_ids':    valid_ids
+        }
+
+        swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
+        swa_precision = precision_score(valid_labels, best_swa_predictions, average = 'weighted')
+        swa_recall    = recall_score(valid_labels, best_swa_predictions, average = 'weighted')
+        logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
+
+    if CFG['save_to_log']:
+        xcoords = [x for x in range(1, epoch + 1)]
+        plt.clf()
+        plt.plot(train_losses_plot, '-D', markevery = xcoords, label = 'Train Losses')
+        plt.plot(valid_losses_plot, '-D', markevery = xcoords, label = 'Valid Losses')
+        plt.title(f"[Model {CFG['id']}, Fold {fold}]: Losses Plot")
+        plt.xlabel("Epochs")
+        plt.ylabel("Losses")
+        plt.legend(loc = True)
+        plt.savefig(os.path.join(
+            PATH_TO_MODELS,
+            f"losses_plot_model_{CFG['id']}_fold_{fold}.png"
+        ))
+        plt.clf()
+        plt.plot(train_scores_plot, '-D', markevery = xcoords, label = 'Train Scores')
+        plt.plot(valid_scores_plot, '-D', markevery = xcoords, label = 'Valid Scores')
+        plt.title(f"[Model {CFG['id']}, Fold {fold}]: Scores Plot")
+        plt.xlabel("Epochs")
+        plt.ylabel("Scores")
+        plt.legend(loc = True)
+        plt.savefig(os.path.join(
+            PATH_TO_MODELS,
+            f"scores_plot_model_{CFG['id']}_fold_{fold}.png"
+        ))
+
+    return [best_score], [(best_score, best_model)], [swa_accuracy], [(swa_accuracy, best_swa_model)]
+
 if __name__ == "__main__":
     QUIET = False
     SAVE_TO_LOG = True
     DISTRIBUTED_TRAINING = False
+    USE_PSEUDO_LABELS = False
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', 
@@ -399,8 +623,8 @@ if __name__ == "__main__":
         'max_gradient_norm': None,
 
         # Parameters for optimizers, schedulers and learning_rate
-        'optimizer': "AdamW",
-        'scheduler': "OneCycleLR",
+        'optimizer': "Adam",
+        'scheduler': "CosineAnnealingWarmRestarts",
         
         'LR': 0.0002,
         'T_0': 74,
@@ -437,7 +661,8 @@ if __name__ == "__main__":
         'one_fold': False,
         'use_apex': True,
         'distributed_training': DISTRIBUTED_TRAINING, # python -m torch.distributed.launch --nproc_per_node=1 train.py
-        'save_to_log': SAVE_TO_LOG
+        'save_to_log': SAVE_TO_LOG,
+        'use_pseudo_labels:': USE_PSEUDO_LABELS
     }
 
     if SAVE_TO_LOG:

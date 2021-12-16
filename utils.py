@@ -80,7 +80,7 @@ OUTPUT = {
 SEED = 42
 seed_everything(SEED)
 
-STAGE = 2
+STAGE = 3
 PATH_TO_DATA       = 'data/detect-targets-in-radar-signals/'
 PATH_TO_OOF        = 'logs/stage-{}/gpu-{}/oof.csv'.format(STAGE, RANK)
 PATH_TO_MODELS     = 'models/stage-{}/'.format(STAGE)
