@@ -110,11 +110,22 @@ def valid_epoch(model, loader, criterion, device, CFG, logger):
 
 def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, PATH_TO_MODELS: str, DEVICE,  swa_oof: np.array = None):
     logger.print(50 * "=" + " Training Fold: {} ".format(fold) + 50 * "=")
-    train_idx = data[data['fold'] != fold].index
-    valid_idx = data[data['fold'] == fold].index
+    train_df = data[data['fold'] != fold]
+    valid_df = data[data['fold'] == fold]
+    
+    if CFG['use_pseudo_labels']:
+        test_samples = pd.read_csv('data/detect-targets-in-radar-signals/pseudo_labels.csv')
+        test_samples = test_samples[test_samples['all-agreed'] == True].reset_index(drop = True)
+        test_samples = test_samples.rename(columns = {'pseudo-label': 'label'}, inplace = False)
+        test_samples['label'] = test_samples['label'].apply(lambda x: x - 1)
+        
+        train_df = pd.concat([train_df, test_samples], axis = 0)
+        train_df = train_df.sample(frac = 1, random_state = SEED)
 
-    train_df = data.loc[train_idx].reset_index(drop = True)
-    valid_df = data.loc[valid_idx].reset_index(drop = True)
+    valid_idx = valid_df.index
+
+    train_df = train_df.reset_index(drop = True)
+    valid_df = valid_df.reset_index(drop = True)
 
     valid_labels = valid_df['label'].values
     valid_ids    = valid_df['id'].values
@@ -322,20 +333,6 @@ def run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger):
         random_state = SEED
     )
 
-    if CFG['use_pseudo_labels']:
-        test_samples = pd.read_csv('data/detect-targets-in-radar-signals/pseudo_labels.csv')
-        test_samples = test_samples[test_samples['all-agreed'] == True].reset_index(drop = True)
-        test_samples = test_samples.rename(columns = {'pseudo_labels': 'label'}, inplace = False)
-
-        test_samples = generate_folds(
-            data         = test_samples, 
-            skf_column   = 'label', 
-            n_folds      = CFG['n_folds'], 
-            random_state = SEED
-        )
-
-        train = pd.concat([train, test_samples], axis = 1, inplace = False).reset_index(drop = True)
-
     oof     = np.zeros((train.shape[0],), dtype = np.float32)
     swa_oof = copy.deepcopy(oof)
 
@@ -386,6 +383,7 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
     train  = pd.read_csv(PATH_TO_TRAIN_META)
     train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
     train["label"] = train["label"].apply(lambda x: x - 1)
+    #train = train.sample(50, random_state = SEED).reset_index(drop = True)
 
     PATH_TO_OOF = f"logs/stage-{STAGE}/gpu-{GPU}/oof.csv"
     logger.print(f"[GPU {GPU}]: Config File")
@@ -395,19 +393,15 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
     train_df = train_df.reset_index(drop = True)
     valid_df = valid_df.reset_index(drop = True)
 
+    valid_labels = valid_df['label'].values
+ 
     if CFG['use_pseudo_labels']:
         test_samples = pd.read_csv('data/detect-targets-in-radar-signals/pseudo_labels.csv')
         test_samples = test_samples[test_samples['all-agreed'] == True].reset_index(drop = True)
-        test_samples = test_samples.rename(columns = {'pseudo_labels': 'label'}, inplace = False)
-
-        test_samples = generate_folds(
-            data         = test_samples, 
-            skf_column   = 'label', 
-            n_folds      = CFG['n_folds'], 
-            random_state = SEED
-        )
-
-        train_df = pd.concat([train_df, test_samples], axis = 1, inplace = False).reset_index(drop = True)
+        test_samples = test_samples.rename(columns = {'pseudo-label': 'label'}, inplace = False)
+        test_samples['label'] = test_samples['label'].apply(lambda x: x - 1)
+        train_df = pd.concat([train_df, test_samples], axis = 0)
+        train_df = train_df.sample(frac = 1, random_state = SEED).reset_index(drop = True)
         
     train_transforms = A.Compose( 
         CFG['train_transforms'] + [
@@ -516,13 +510,11 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
             logger.print(f"Saved Best Model: {accuracy:.2f}")
             best_score = accuracy
             best_predictions = valid_predictions
-            oof[valid_idx] = best_predictions
 
             best_model = {
                 'model':     {key: value.cpu() for key, value in model.state_dict().items()},
                 'oof_proba':  best_predictions,
                 'oof_labels': valid_labels,
-                'oof_ids':    valid_ids
             }
 
         if CFG['use_swa'] and epoch + 1 in CFG['swa_epoch']:
@@ -546,13 +538,11 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
     if CFG['use_swa']:
         torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
         swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
-        swa_oof[valid_idx] = best_swa_predictions
 
         best_swa_model = {
             'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
             'oof_proba':  best_swa_predictions,
             'oof_labels': valid_labels,
-            'oof_ids':    valid_ids
         }
 
         swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
@@ -565,25 +555,29 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
         plt.clf()
         plt.plot(train_losses_plot, '-D', markevery = xcoords, label = 'Train Losses')
         plt.plot(valid_losses_plot, '-D', markevery = xcoords, label = 'Valid Losses')
-        plt.title(f"[Model {CFG['id']}, Fold {fold}]: Losses Plot")
+        plt.title(f"[Model {CFG['id']}, All Data]: Losses Plot")
         plt.xlabel("Epochs")
         plt.ylabel("Losses")
         plt.legend(loc = True)
         plt.savefig(os.path.join(
             PATH_TO_MODELS,
-            f"losses_plot_model_{CFG['id']}_fold_{fold}.png"
+            f"losses_plot_model_{CFG['id']}_all_data.png"
         ))
         plt.clf()
         plt.plot(train_scores_plot, '-D', markevery = xcoords, label = 'Train Scores')
         plt.plot(valid_scores_plot, '-D', markevery = xcoords, label = 'Valid Scores')
-        plt.title(f"[Model {CFG['id']}, Fold {fold}]: Scores Plot")
+        plt.title(f"[Model {CFG['id']}, All Data]: Scores Plot")
         plt.xlabel("Epochs")
         plt.ylabel("Scores")
         plt.legend(loc = True)
         plt.savefig(os.path.join(
             PATH_TO_MODELS,
-            f"scores_plot_model_{CFG['id']}_fold_{fold}.png"
+            f"scores_plot_model_{CFG['id']}_all_data.png"
         ))
+
+    OUTPUT["oof-accuracy"] = best_score
+    GLOBAL_LOGGER.append(CFG, OUTPUT)
+
 
     return [best_score], [(best_score, best_model)], [swa_accuracy], [(swa_accuracy, best_swa_model)]
 
@@ -626,20 +620,20 @@ if __name__ == "__main__":
         'optimizer': "Adam",
         'scheduler': "CosineAnnealingWarmRestarts",
         
-        'LR': 0.0002,
-        'T_0': 74,
+        'LR': 0.000065,
+        'T_0': 65,
         'T_max': 10,
         'T_mult': 2,
         'min_lr': 1e-6,
         'max_lr': 0.0002,
         'no_batches': 'NA',
         'warmup_epochs': 1,
-        'cosine_epochs': 11,
-        'epochs' : 12,
+        'cosine_epochs': 15,
+        'epochs' : 16,
         'update_per_batch': True,
 
         'num_workers': 4,
-        'n_folds': 5,
+        'n_folds': 10,
 
         # Augumentations and other obserrvations for experiment
         'train_transforms': [],
@@ -649,7 +643,7 @@ if __name__ == "__main__":
         # Stochastic Weight Averaging
         'use_swa': True,
         'swa_lr':  0.01,
-        'swa_epoch': [7, 8, 9, 10, 11, 12],
+        'swa_epoch': [2, 3, 4, 6, 7, 8, 12, 13, 14, 15, 16],
 
         # Adaptive Sharpness-Aware Minimization
         'use_sam':  False,
@@ -662,7 +656,7 @@ if __name__ == "__main__":
         'use_apex': True,
         'distributed_training': DISTRIBUTED_TRAINING, # python -m torch.distributed.launch --nproc_per_node=1 train.py
         'save_to_log': SAVE_TO_LOG,
-        'use_pseudo_labels:': USE_PSEUDO_LABELS
+        'use_pseudo_labels': USE_PSEUDO_LABELS
     }
 
     if SAVE_TO_LOG:
@@ -673,7 +667,7 @@ if __name__ == "__main__":
         logger = Logger(distributed = QUIET)
 
     if CFG['use_swa']:
-        accuracy, best_models, swa_accuracy, best_swa_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+        accuracy, best_models, swa_accuracy, best_swa_models = train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
         print(f"Accuracy: {accuracy}")
         print(f"SWA Accuracy: {swa_accuracy}")  
 

@@ -123,17 +123,18 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
 
 
 if __name__ == "__main__":
-    STAGE   = 2
+    STAGE   = 3
     GPU     = 1
     VERSION = 0
-    FOLDS   = [(0, "0.77"), (1, "0.76"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
+    FOLDS   = [(0, "0.77"), (1, "0.77"), (2, "0.77"), (3, "0.77"), (4, "0.75"),
+               (5, "0.77"), (6, "0.75"), (7, "0.77"), (8, "0.77"), (9, "0.76")]
 
     CFG = {
         'id': VERSION,
         'model_name': 'swin_large_patch4_window12_384_in22k',
         'size': 384,
         'batch_size_t': 3,
-        'batch_size_v': 48,
+        'batch_size_v': 52,
 
         'n_targets': 5,
         'num_workers': 4,
