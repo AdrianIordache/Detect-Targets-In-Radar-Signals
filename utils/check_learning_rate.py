@@ -5,23 +5,25 @@ sys.path.append(parentdir)
 from utils import *
 
 # Final CV10 ['CosineAnnealingWarmRestarts', (55, 2, 16, 3487, [2, 3, 4, 6, 7, 8, 12, 13, 14, 15, 16])]
+# Final CV10 PseudoLabels All ['CosineAnnealingWarmRestarts', (64, 2, 16, 4017, [2, 3, 4, 6, 7, 8, 12, 13, 14, 15, 16])]
+# Final Model  ['CosineAnnealingWarmRestarts', (61, 2, 16, 3836, [2, 3, 4, 6, 7, 8, 12, 13, 14, 15, 16])]
 
 CFG = {
     'learning_rate' : 65e-5,
     'scheduler_name': 'CosineAnnealingWarmRestarts',
 
-    'T_0': 55, # [(53, 3, 6, 3100, [2, 4, 5, 6]), (74, 2, 12, 3100,  [3, 5, 6, 10, 11, 12]), (59, 2, 12, 2480) (62, 3, 9, 2480)]
+    'T_0': 61, # [(53, 3, 6, 3100, [2, 4, 5, 6]), (74, 2, 12, 3100,  [3, 5, 6, 10, 11, 12]), (59, 2, 12, 2480) (62, 3, 9, 2480)]
     'T_max': 10,
     'T_mult': 2,
     'min_lr': 1e-6,
     'max_lr': 3e-3,
 
-    'no_batches': 3487, # 2480, # 1231, # 1652,
+    'no_batches': 3836, # 2480, # 1231, # 1652,
     'batch_size': 4,
 
     'warmup_epochs': 1,
     'cosine_epochs': 10,
-    'epochs': 20,
+    'epochs': 12,
 
     'update_per_batch': True,
     'print_freq': 50

@@ -27,11 +27,13 @@ CFG = {
 }
 
 def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: str = 'train'):
-    STAGE   = 1
+    STAGE   = 3
     GPU     = 1 
-    VERSION = 42
-    FOLDS   = [(0, "0.77"), (1, "0.76"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
+    VERSION = 1
 
+    USE_SWA = True
+    FOLDS   = [(0, "0.77"), (1, "0.76"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
+    
     tic = time.time()
     for fold, accuracy in FOLDS:
         embeddings = np.zeros((dataset.shape[0], embedding_size))
@@ -46,7 +48,14 @@ def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: 
            pretrained      = False,
         ).to(DEVICE)
 
-        model.load_state_dict(states['model'])       
+        if USE_SWA:
+            model = AveragedModel(model)
+
+        if USE_SWA:
+            model.load_state_dict(states['model'])       
+        else:
+            model.load_state_dict(states['swa_model'])
+              
         model.eval() 
 
         test_transforms = A.Compose([
@@ -93,10 +102,16 @@ def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: 
         embeddings_csv = pd.DataFrame(embeddings, columns = ['X_{}'.format(x) for x in range(embedding_size)])
         embeddings_csv["id"]   = dataset['id'].values
 
-        embeddings_csv.to_csv(
-            os.path.join(PATH_TO_EMBEDDINGS, f'{typs}_stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
-                index = False
-        )
+        if USE_SWA:
+            embeddings_csv.to_csv(
+                os.path.join(PATH_TO_EMBEDDINGS, f'{typs}_swa_stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
+                    index = False
+            )
+        else:
+            embeddings_csv.to_csv(
+                os.path.join(PATH_TO_EMBEDDINGS, f'{typs}_stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
+                    index = False
+            )
 
 def extract_noisy_feature(dataset: pd.DataFrame):
     oof = np.zeros((dataset.shape[0], CFG['n_folds']))
