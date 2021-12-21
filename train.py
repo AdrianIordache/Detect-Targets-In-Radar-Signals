@@ -257,29 +257,35 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
             logger.print(f'Epoch {epoch + 1} - Baseline Accuracy: {accuracy:.3f} - SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
             if swa_accuracy > swa_best_score:
                 logger.print(f'Saved Best Model: {swa_accuracy:.2f}')
-                swa_best_model = swa_model
+                torch.optim.swa_utils.update_bn(trainloader, swa_model, device = DEVICE)
+                best_swa_model = {
+                    'swa_model':  {key: value.cpu() for key, value in swa_model.state_dict().items()},
+                    'oof_proba':  valid_swa_predictions,
+                    'oof_labels': valid_labels,
+                }
+
                 swa_best_score = swa_accuracy
 
         if train_avg_accuracy - valid_avg_accuracy > 30: 
             logger.print("[EXIT] Overfitting Condition...")
             break
 
-    if CFG['use_swa']:
-        torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
-        swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
-        swa_oof[valid_idx] = best_swa_predictions
+    #if CFG['use_swa']:
+    #    torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
+    #    swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
+    #    swa_oof[valid_idx] = best_swa_predictions
 
-        best_swa_model = {
-            'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
-            'oof_proba':  best_swa_predictions,
-            'oof_labels': valid_labels,
-            'oof_ids':    valid_ids
-        }
+    #    best_swa_model = {
+    #        'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
+    #        'oof_proba':  best_swa_predictions,
+    #        'oof_labels': valid_labels,
+    #        'oof_ids':    valid_ids
+    #    }
 
-        swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
-        swa_precision = precision_score(valid_labels, best_swa_predictions, average = 'weighted')
-        swa_recall    = recall_score(valid_labels, best_swa_predictions, average = 'weighted')
-        logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
+    #    swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
+    #    swa_precision = precision_score(valid_labels, best_swa_predictions, average = 'weighted')
+    #    swa_recall    = recall_score(valid_labels, best_swa_predictions, average = 'weighted')
+    #    logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
 
     if CFG['save_to_log']:
         xcoords = [x for x in range(1, epoch + 1)]
@@ -307,7 +313,7 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
         ))
 
     if CFG['use_swa']:
-        return oof, best_score, best_model, swa_oof, swa_accuracy, best_swa_model
+        return oof, best_score, best_model, swa_oof, swa_best_score, best_swa_model
     else:
         return oof, best_score, best_model, None, None, None
 
@@ -383,7 +389,7 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
     train  = pd.read_csv(PATH_TO_TRAIN_META)
     train["path"]  = train["id"].apply(lambda x: os.path.join(PATH_TO_TRAIN_IMAGES, x))
     train["label"] = train["label"].apply(lambda x: x - 1)
-    #train = train.sample(50, random_state = SEED).reset_index(drop = True)
+    # train = train.sample(50, random_state = SEED).reset_index(drop = True)
 
     PATH_TO_OOF = f"logs/stage-{STAGE}/gpu-{GPU}/oof.csv"
     logger.print(f"[GPU {GPU}]: Config File")
@@ -528,27 +534,34 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
             logger.print(f'Epoch {epoch + 1} - Baseline Accuracy: {accuracy:.3f} - SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
             if swa_accuracy > swa_best_score:
                 logger.print(f'Saved Best Model: {swa_accuracy:.2f}')
-                swa_best_model = swa_model
+                torch.optim.swa_utils.update_bn(trainloader, swa_model, device = DEVICE)
+                best_swa_model = {
+                    'swa_model':  {key: value.cpu() for key, value in swa_model.state_dict().items()},
+                    'oof_proba':  valid_swa_predictions,
+                    'oof_labels': valid_labels,
+                }
+
+                # swa_best_model = copy.deepcopy(swa_model)
                 swa_best_score = swa_accuracy
 
         if train_avg_accuracy - valid_avg_accuracy > 30: 
             logger.print("[EXIT] Overfitting Condition...")
             break
 
-    if CFG['use_swa']:
-        torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
-        swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
+    #if CFG['use_swa']:
+    #    torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
+    #    swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
 
-        best_swa_model = {
-            'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
-            'oof_proba':  best_swa_predictions,
-            'oof_labels': valid_labels,
-        }
+    #    best_swa_model = {
+    #        'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
+    #        'oof_proba':  best_swa_predictions,
+    #        'oof_labels': valid_labels,
+    #    }
 
-        swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
-        swa_precision = precision_score(valid_labels, best_swa_predictions, average = 'weighted')
-        swa_recall    = recall_score(valid_labels, best_swa_predictions, average = 'weighted')
-        logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
+    #    swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
+    #    swa_precision = precision_score(valid_labels, best_swa_predictions, average = 'weighted')
+    #    swa_recall    = recall_score(valid_labels, best_swa_predictions, average = 'weighted')
+    #    logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
 
     if CFG['save_to_log']:
         xcoords = [x for x in range(1, epoch + 1)]
@@ -579,13 +592,13 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
     GLOBAL_LOGGER.append(CFG, OUTPUT)
 
 
-    return [best_score], [(best_score, best_model)], [swa_accuracy], [(swa_accuracy, best_swa_model)]
+    return [best_score], [(best_score, best_model)], [swa_best_score], [(swa_best_score, best_swa_model)]
 
 if __name__ == "__main__":
-    QUIET = False
+    QUIET = True
     SAVE_TO_LOG = True
     DISTRIBUTED_TRAINING = False
-    USE_PSEUDO_LABELS = False
+    USE_PSEUDO_LABELS = True
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', 
@@ -667,7 +680,7 @@ if __name__ == "__main__":
         logger = Logger(distributed = QUIET)
 
     if CFG['use_swa']:
-        accuracy, best_models, swa_accuracy, best_swa_models = train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
+        accuracy, best_models, swa_accuracy, best_swa_models = run(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger)
         print(f"Accuracy: {accuracy}")
         print(f"SWA Accuracy: {swa_accuracy}")  
 

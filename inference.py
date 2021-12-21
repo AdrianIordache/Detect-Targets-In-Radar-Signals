@@ -36,7 +36,7 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
         if CFG['use_swa']:
             model = AveragedModel(model)
 
-        model.load_state_dict(states['model'])       
+        model.load_state_dict(states['swa_model'])       
         model.eval() 
 
         tta_predictions = np.zeros((test.shape[0], len(tta_transforms)))
@@ -125,9 +125,9 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
 if __name__ == "__main__":
     STAGE   = 3
     GPU     = 1
-    VERSION = 0
-    FOLDS   = [(0, "0.77"), (1, "0.77"), (2, "0.77"), (3, "0.77"), (4, "0.75"),
-               (5, "0.77"), (6, "0.75"), (7, "0.77"), (8, "0.77"), (9, "0.76")]
+    VERSION = 1
+    FOLDS   = [(0, '0.77'), (1, '0.77'), (2, '0.77'), (3, '0.76'), (4, '0.77'), 
+               (5, '0.77'), (6, '0.77'), (7, '0.76'), (8, '0.77'), (9, '0.76')]
 
     CFG = {
         'id': VERSION,
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         'observations':   None,
 
         # Stochastic Weight Averaging
-        'use_swa': False,
+        'use_swa': True,
 
         # Parameters for script control
         'print_freq': 50,
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     
     MODELS = []
     for fold_idx, (fold, accuracy) in enumerate(FOLDS):
-        PATH_TO_MODEL = f"models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy}.pth"
+        PATH_TO_MODEL = f"models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/swa_model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy}.pth"
         states = torch.load(PATH_TO_MODEL, map_location = torch.device('cpu'))
         MODELS.append((accuracy, copy.deepcopy(states)))
 
