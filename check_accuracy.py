@@ -29,7 +29,7 @@ MODELS = [
 
 ]
 
-RENAME = False
+RENAME = True
 for (stage, gpu, model, is_swa, folds) in MODELS:
 	path = f'models/stage-{stage}/gpu-{gpu}/model_{model}/'
 

@@ -595,8 +595,8 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
     return [best_score], [(best_score, best_model)], [swa_best_score], [(swa_best_score, best_swa_model)]
 
 if __name__ == "__main__":
-    QUIET = True
-    SAVE_TO_LOG = True
+    QUIET = False
+    SAVE_TO_LOG = False
     DISTRIBUTED_TRAINING = False
     USE_PSEUDO_LABELS = True
 

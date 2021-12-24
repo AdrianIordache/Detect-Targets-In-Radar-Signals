@@ -28,16 +28,17 @@ CFG = {
 
 def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: str = 'train'):
     STAGE   = 3
-    GPU     = 1 
+    GPU     = 1
     VERSION = 1
 
     USE_SWA = True
-    FOLDS   = [(0, "0.77"), (1, "0.76"), (2, "0.76"), (3, "0.76"), (4, "0.76")]
+    FOLDS   = [(0, "0.774"), (1, "0.774"), (2, "0.778"), (3, "0.763"), (4, "0.772"),
+               (5, "0.783"), (6, "0.778"), (7, "0.759"), (8, "0.775"), (9, "0.761")]
     
     tic = time.time()
     for fold, accuracy in FOLDS:
         embeddings = np.zeros((dataset.shape[0], embedding_size))
-        PATH_TO_MODEL = f"models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy}.pth"
+        PATH_TO_MODEL = f"models/stage-{STAGE}/gpu-{GPU}/model_{VERSION}/swa_model_{VERSION}_name_{CFG['model_name']}_fold_{fold}_accuracy_{accuracy}.pth"
         print("Current Model Inference: ", PATH_TO_MODEL)
 
         states = torch.load(PATH_TO_MODEL, map_location = torch.device('cpu'))
@@ -51,7 +52,7 @@ def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: 
         if USE_SWA:
             model = AveragedModel(model)
 
-        if USE_SWA:
+        if USE_SWA == False:
             model.load_state_dict(states['model'])       
         else:
             model.load_state_dict(states['swa_model'])
@@ -104,7 +105,7 @@ def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: 
 
         if USE_SWA:
             embeddings_csv.to_csv(
-                os.path.join(PATH_TO_EMBEDDINGS, f'{typs}_swa_stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
+                os.path.join(PATH_TO_EMBEDDINGS, f'swa_{typs}_stage_{STAGE}_gpu_{GPU}_version_{VERSION}_fold_{fold}_baseline_{accuracy}.csv'),
                     index = False
             )
         else:
