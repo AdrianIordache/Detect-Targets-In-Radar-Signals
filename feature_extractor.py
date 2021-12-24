@@ -61,7 +61,7 @@ def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: 
 
         test_transforms = A.Compose([
             A.Resize(CFG['size'], CFG['size']),
-            A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+            A.Normalize(mean = MEANS_IMAGENET, std  = STDS_IMAGENET),
             ToTensorV2()
         ])
 
@@ -95,7 +95,9 @@ def extract_embeddings(dataset: pd.DataFrame, embedding_size: int = 1536, typs: 
             end = time.time()
             if batch % CFG['print_freq'] == 0 or batch == (len(testloader) - 1):
                 print('[GPU {0}][INFERENCE][{1}/{2}], Elapsed {remain:s}'
-                      .format(DEVICE, batch, len(testloader), remain = timeSince(start, float(batch + 1) / len(testloader))))
+                      .format(DEVICE, batch, len(testloader), 
+                        remain = timeSince(start, float(batch + 1) / len(testloader)))
+                )
 
         images = images.detach().cpu()
         embeddings[:, :] = predictions
@@ -145,7 +147,7 @@ def extract_noisy_feature(dataset: pd.DataFrame):
             test_transforms = A.Compose(
                 tta + [
                 A.Resize(CFG['size'], CFG['size']),
-                A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+                A.Normalize(mean = MEANS_IMAGENET, std  = STDS_IMAGENET),
                 ToTensorV2()
             ])
 
@@ -180,7 +182,9 @@ def extract_noisy_feature(dataset: pd.DataFrame):
                 end = time.time()
                 if batch % CFG['print_freq'] == 0 or batch == (len(testloader) - 1):
                     print('[GPU {0}][INFERENCE][{1}/{2}], Elapsed {remain:s}'
-                          .format(DEVICE, batch, len(testloader), remain = timeSince(start, float(batch + 1) / len(testloader))))
+                          .format(DEVICE, batch, len(testloader), 
+                            remain = timeSince(start, float(batch + 1) / len(testloader)))
+                    )
             
             tta_predictions[:, tta_index] = predictions    
             del testset, testloader, predictions, preds

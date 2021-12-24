@@ -99,35 +99,36 @@ PATH_TO_DENOISING    = os.path.join(PATH_TO_DATA, 'denoising', 'demo', 'denoisin
 
 PATH_TO_ERROR_ANALYSIS = os.path.join(PATH_TO_DATA, "error_analysis.csv")
 
-def asMinutes(s):
-    m = math.floor(s / 60)
-    s -= m * 60
-    return '%dm %ds' % (m, s)
+MEANS_IMAGENET = [0.485, 0.456, 0.406]
+STDS_IMAGENET  = [0.229, 0.224, 0.225]
 
+def time_since(since, percent):
+    def seconds_as_minutes(seconds):
+        import math
+        minutes  = math.floor(seconds / 60)
+        seconds -= minutes * 60
+        return f'{minutes}m {seconds}s'
 
-def timeSince(since, percent):
-    now = time.time()
-    s = now - since
-    es = s / (percent)
-    rs = es - s
-    return '%s (remain %s)' % (asMinutes(s), asMinutes(rs))
+    now     = time.time()
+    seconds = now - since
 
+    total_seconds    = seconds / (percent)
+    remained_seconds = total_seconds - seconds
+    return f'{seconds_as_minutes(seconds)} (remain {seconds_as_minutes(remained_seconds)})'
 
 class AverageMeter(object):
     def __init__(self):
         self.reset()
+        
+    def update(self, value, n = 1):
+        self.count += n
+        self.sum   += value * n
+
+        self.value   = value 
+        self.average = self.sum / self.count
 
     def reset(self):
-        self.val = 0
-        self.avg = 0
-        self.sum = 0
-        self.count = 0
-
-    def update(self, val, n = 1):
-        self.val = val
-        self.sum += val * n
-        self.count += n
-        self.avg = self.sum / self.count
+        self.value, self.average, self.sum, self.count = 0, 0, 0, 0
 
 
 class GlobalLogger:

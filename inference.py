@@ -46,7 +46,7 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
             test_transforms = A.Compose(
                 tta + [
                 A.Resize(CFG['size'], CFG['size']),
-                A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+                A.Normalize(mean = MEANS_IMAGENET, std  = STDS_IMAGENET),
                 ToTensorV2()
             ])
 
@@ -81,7 +81,9 @@ def inference(MODELS, CFG, RANK, GPU, VERBOSE = False):
                 if VERBOSE:
                     if batch % CFG['print_freq'] == 0 or batch == (len(testloader) - 1):
                         print('[GPU {0}][INFERENCE][{1}/{2}], Elapsed {remain:s}'
-                              .format(DEVICE, batch, len(testloader), remain = timeSince(start, float(batch + 1) / len(testloader))))
+                              .format(DEVICE, batch, len(testloader), 
+                                remain = timeSince(start, float(batch + 1) / len(testloader)))
+                        )
             
             tta_predictions[:, tta_index] = predictions    
             del testset, testloader, predictions, preds

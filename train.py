@@ -57,8 +57,12 @@ def train_epoch(model, loader, optimizer, criterion, scheduler, epoch, device, s
 
         if batch % CFG['print_freq'] == 0 or batch == (len(loader) - 1):
             logger.print('[GPU {0}][TRAIN] Epoch: [{1}][{2}/{3}], Elapsed {remain:s}, Accuracy: {accuracy.val:.3f}({accuracy.avg:.3f}), Loss: {loss.val:.3f}({loss.avg:.3f}), LR: {lr:.6f}'
-                  .format(device, epoch + 1, batch, len(loader), remain = timeSince(start, float(batch + 1) / len(loader)), accuracy = accuracies,
-                          loss = losses, lr = scheduler.get_lr()[0]))
+                  .format(device, epoch + 1, batch, len(loader), 
+                    remain   = time_since(start, float(batch + 1) / len(loader)), 
+                    accuracy = accuracies,
+                    loss     = losses, 
+                    lr = scheduler.get_lr()[0])
+            )
 
         losses_plot.append(losses.val)
         scores_plot.append(accuracies.val)
@@ -100,7 +104,11 @@ def valid_epoch(model, loader, criterion, device, CFG, logger):
         predictions.extend(copy.deepcopy(output))
         if batch % CFG['print_freq'] == 0 or batch == (len(loader) - 1):
             logger.print('[GPU {0}][VALID][{1}/{2}], Elapsed {remain:s}, Accuracy: {accuracy.val:.3f}({accuracy.avg:.3f}), Batch Loss: {loss.val:.4f}, Average Loss: {loss.avg:.4f}'
-                  .format(device, batch, len(loader), remain = timeSince(start, float(batch + 1) / len(loader)), accuracy = accuracies, loss = losses))
+                  .format(device, batch, len(loader), 
+                    remain   = time_since(start, float(batch + 1) / len(loader)), 
+                    accuracy = accuracies, 
+                    loss = losses)
+            )
 
         losses_plot.append(losses.val)
         scores_plot.append(accuracies.val)
@@ -133,14 +141,14 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
     train_transforms = A.Compose( 
         CFG['train_transforms'] + [
         A.Resize(CFG['size'], CFG['size']),
-        A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+        A.Normalize(mean = MEANS_IMAGENET, std  = STDS_IMAGENET),
         ToTensorV2()
     ])
 
     valid_transforms = A.Compose(
         CFG['valid_transforms'] + [
         A.Resize(CFG['size'], CFG['size']),
-        A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+        A.Normalize(mean = MEANS_IMAGENET, std  = STDS_IMAGENET),
         ToTensorV2()
     ])
 
@@ -270,23 +278,6 @@ def train_fold(CFG: Dict, data: pd.DataFrame, fold: int, oof: np.array, logger, 
             logger.print("[EXIT] Overfitting Condition...")
             break
 
-    #if CFG['use_swa']:
-    #    torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
-    #    swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
-    #    swa_oof[valid_idx] = best_swa_predictions
-
-    #    best_swa_model = {
-    #        'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
-    #        'oof_proba':  best_swa_predictions,
-    #        'oof_labels': valid_labels,
-    #        'oof_ids':    valid_ids
-    #    }
-
-    #    swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
-    #    swa_precision = precision_score(valid_labels, best_swa_predictions, average = 'weighted')
-    #    swa_recall    = recall_score(valid_labels, best_swa_predictions, average = 'weighted')
-    #    logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
-
     if CFG['save_to_log']:
         xcoords = [x for x in range(1, epoch + 1)]
         plt.clf()
@@ -412,14 +403,14 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
     train_transforms = A.Compose( 
         CFG['train_transforms'] + [
         A.Resize(CFG['size'], CFG['size']),
-        A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+        A.Normalize(mean = MEANS_IMAGENET, std  = STDS_IMAGENET),
         ToTensorV2()
     ])
 
     valid_transforms = A.Compose(
         CFG['valid_transforms'] + [
         A.Resize(CFG['size'], CFG['size']),
-        A.Normalize(mean = [0.485, 0.456, 0.406], std  = [0.229, 0.224, 0.225]),
+        A.Normalize(mean = MEANS_IMAGENET, std  = STDS_IMAGENET),
         ToTensorV2()
     ])
 
@@ -541,27 +532,11 @@ def train_all_data(GPU, CFG, GLOBAL_LOGGER, PATH_TO_MODELS, logger, test_size = 
                     'oof_labels': valid_labels,
                 }
 
-                # swa_best_model = copy.deepcopy(swa_model)
                 swa_best_score = swa_accuracy
 
         if train_avg_accuracy - valid_avg_accuracy > 30: 
             logger.print("[EXIT] Overfitting Condition...")
             break
-
-    #if CFG['use_swa']:
-    #    torch.optim.swa_utils.update_bn(trainloader, swa_best_model, device = DEVICE)
-    #    swa_best_score, best_swa_predictions, _, _ = valid_epoch(swa_best_model, validloader, criterion, DEVICE, CFG, logger)
-
-    #    best_swa_model = {
-    #        'swa_model':  {key: value.cpu() for key, value in swa_best_model.state_dict().items()},
-    #        'oof_proba':  best_swa_predictions,
-    #        'oof_labels': valid_labels,
-    #    }
-
-    #    swa_accuracy  = accuracy_score(valid_labels, best_swa_predictions) 
-    #    swa_precision = precision_score(valid_labels, best_swa_predictions, average = 'weighted')
-    #    swa_recall    = recall_score(valid_labels, best_swa_predictions, average = 'weighted')
-    #    logger.print(f'SWA Accuracy: {swa_accuracy:.3f}, SWA Precision: {swa_precision:.3f}, SWA Recall: {swa_recall:.3f}')
 
     if CFG['save_to_log']:
         xcoords = [x for x in range(1, epoch + 1)]
