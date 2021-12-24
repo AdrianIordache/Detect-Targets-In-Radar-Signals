@@ -56,7 +56,7 @@ def train_epoch(model, loader, optimizer, criterion, scheduler, epoch, device, s
         end = time.time()
 
         if batch % CFG['print_freq'] == 0 or batch == (len(loader) - 1):
-            logger.print('[GPU {0}][TRAIN] Epoch: [{1}][{2}/{3}], Elapsed {remain:s}, Accuracy: {accuracy.val:.3f}({accuracy.avg:.3f}), Loss: {loss.val:.3f}({loss.avg:.3f}), LR: {lr:.6f}'
+            logger.print('[GPU {0}][TRAIN] Epoch: [{1}][{2}/{3}], Elapsed {remain:s}, Accuracy: {accuracy.value:.3f}({accuracy.average:.3f}), Loss: {loss.value:.3f}({loss.average:.3f}), LR: {lr:.6f}'
                   .format(device, epoch + 1, batch, len(loader), 
                     remain   = time_since(start, float(batch + 1) / len(loader)), 
                     accuracy = accuracies,
@@ -64,8 +64,8 @@ def train_epoch(model, loader, optimizer, criterion, scheduler, epoch, device, s
                     lr = scheduler.get_lr()[0])
             )
 
-        losses_plot.append(losses.val)
-        scores_plot.append(accuracies.val)
+        losses_plot.append(losses.value)
+        scores_plot.append(accuracies.value)
 
     free_gpu_memory(device)
     return accuracies.avg, np.mean(losses_plot), np.mean(scores_plot)
@@ -103,15 +103,15 @@ def valid_epoch(model, loader, criterion, device, CFG, logger):
 
         predictions.extend(copy.deepcopy(output))
         if batch % CFG['print_freq'] == 0 or batch == (len(loader) - 1):
-            logger.print('[GPU {0}][VALID][{1}/{2}], Elapsed {remain:s}, Accuracy: {accuracy.val:.3f}({accuracy.avg:.3f}), Batch Loss: {loss.val:.4f}, Average Loss: {loss.avg:.4f}'
+            logger.print('[GPU {0}][VALID][{1}/{2}], Elapsed {remain:s}, Accuracy: {accuracy.value:.3f}({accuracy.average:.3f}), Batch Loss: {loss.value:.4f}, Average Loss: {loss.average:.4f}'
                   .format(device, batch, len(loader), 
                     remain   = time_since(start, float(batch + 1) / len(loader)), 
                     accuracy = accuracies, 
                     loss = losses)
             )
 
-        losses_plot.append(losses.val)
-        scores_plot.append(accuracies.val)
+        losses_plot.append(losses.value)
+        scores_plot.append(accuracies.value)
 
     free_gpu_memory(device)
     return accuracies.avg, predictions, np.mean(losses_plot), np.mean(scores_plot)
