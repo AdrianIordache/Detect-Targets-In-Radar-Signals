@@ -9,6 +9,7 @@ from utils import *
 # Final Model  ['CosineAnnealingWarmRestarts', (61, 2, 16, 3836, [2, 3, 4, 6, 7, 8, 12, 13, 14, 15, 16])]
 
 CFG = {
+    'image_size': 10,
     'learning_rate' : 65e-5,
     'scheduler_name': 'CosineAnnealingWarmRestarts',
 
@@ -22,11 +23,11 @@ CFG = {
     'batch_size': 4,
 
     'warmup_epochs': 1,
-    'cosine_epochs': 10,
-    'epochs': 12,
+    'cosine_epochs': 15,
+    'epochs': 16,
 
     'update_per_batch': True,
-    'print_freq': 50
+    'print_freq': 200
 }
 
 def get_scheduler(optimizer, scheduler_params = CFG):
@@ -60,7 +61,7 @@ def get_scheduler(optimizer, scheduler_params = CFG):
     return scheduler
 
 
-dataset = datasets.FakeData(size = CFG['no_batches'] * CFG['batch_size'], transform = transforms.ToTensor())
+dataset = datasets.FakeData(size = CFG['no_batches'] * CFG['batch_size'], transform = transforms.Compose([transforms.Resize(CFG['image_size']), transforms.ToTensor()]))
 
 loader = DataLoader(
     dataset,
@@ -70,7 +71,7 @@ loader = DataLoader(
     drop_last    = True
 )
 
-model     = nn.Linear(3 * 224 * 224, 10)
+model     = nn.Linear(3 * CFG['image_size'] * CFG['image_size'], 10)
 optimizer = optim.SGD(model.parameters(), lr = CFG['learning_rate'])
 scheduler = get_scheduler(optimizer, CFG)
 criterion = nn.NLLLoss()
@@ -98,8 +99,15 @@ for epoch in range(CFG['epochs']):
     if CFG['update_per_batch'] == False: scheduler.step()
 
 xcoords = [CFG['no_batches'] * x for x in range(CFG['epochs'])]
-plt.figure(figsize = (10, 18))
+
+plt.figure(figsize = (18, 10))
 for xc in xcoords:
     plt.axvline(x = xc, color = 'red')
+
 plt.plot(lrs)
+plt.title("Learning Rate Scheduling", color = 'r')
+plt.xlabel("Epochs")
+plt.ylabel("Learning Rate")
+plt.xticks(xcoords, list(range(CFG['epochs'])))
+plt.savefig("learning_rate_scheduling.png")
 plt.show()

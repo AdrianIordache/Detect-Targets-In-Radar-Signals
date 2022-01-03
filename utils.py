@@ -107,7 +107,7 @@ def time_since(since, percent):
         import math
         minutes  = math.floor(seconds / 60)
         seconds -= minutes * 60
-        return f'{minutes}m {seconds}s'
+        return f'{int(minutes)}m {int(seconds)}s'
 
     now     = time.time()
     seconds = now - since
@@ -119,7 +119,7 @@ def time_since(since, percent):
 class AverageMeter(object):
     def __init__(self):
         self.reset()
-        
+
     def update(self, value, n = 1):
         self.count += n
         self.sum   += value * n
