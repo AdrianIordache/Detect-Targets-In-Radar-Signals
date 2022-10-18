@@ -5,6 +5,17 @@ Kaggle competition organized by the Deep Learning teachers during the Artificial
 
 [**1st Place Solution [Public Leaderboard] - 3rd Place Solution [Private Leaderboard]**](https://www.kaggle.com/competitions/detect-targets-in-radar-signals/leaderboard?tab=public)
 
+## Deep Learning Course
+***Course taught during the Artificial Intelligence master's program, 2nd Year, 1st Semester, 2022***
+
+***University of Bucharest, Faculty of Mathematics and Computer Science***
+
+***Professor: Radu Ionescu***
+
+***Laboratory: Antonio Barbalau***
+
+***Exam: 100% * Kaggle Competition***
+
 ## Task & Dataset Description
 For this task, we have available a trainset with 15500 samples of labeled with one of five classes from 1 to 5, uniformly distributed, representing the number of objects in that images. 
 
