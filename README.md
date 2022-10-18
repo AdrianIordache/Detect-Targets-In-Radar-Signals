@@ -1,9 +1,7 @@
 # Detect Targets In Radar Signals
 **Comparing SOTA Convolutional Neural Networks to SOTA Vision Transformers for counting objects in radar signals.**
 
-Kaggle competition organized by the Deep Learning teachers during the Artificial Intelligence master's program, 2nd Year, 1st Semester, 2022.
-
-[**1st Place Solution [Public Leaderboard] - 3rd Place Solution [Private Leaderboard]**](https://www.kaggle.com/competitions/detect-targets-in-radar-signals/leaderboard?tab=public)
+**Kaggle Competition:** [**1st Place Solution [Public Leaderboard] - 3rd Place Solution [Private Leaderboard]**](https://www.kaggle.com/competitions/detect-targets-in-radar-signals/leaderboard?tab=public)
 
 ## Deep Learning Course
 ***Course taught during the Artificial Intelligence master's program, 2nd Year, 1st Semester, 2022***
